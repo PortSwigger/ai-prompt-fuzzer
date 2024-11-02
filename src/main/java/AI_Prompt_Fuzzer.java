@@ -117,33 +117,74 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         mainPanel.add(buttonPanel, BorderLayout.SOUTH);
 
         // Add right-click menu to the request/response viewer and log table
-        addRightClickMenu();
+        addRightClickMenus();
 
         api.userInterface().registerSuiteTab("AI Prompt Fuzzer", mainPanel);
 
         logTable.getSelectionModel().addListSelectionListener(e -> updateRequestResponseViewer());
     }
 
-    // Method to create a right-click menu for both requestResponseViewer and logTable
-    private void addRightClickMenu() {
-        // Create the popup menu
-        JPopupMenu popupMenu = new JPopupMenu();
+    // Method to create right-click menus for requestArea and requestResponseViewer
+    private void addRightClickMenus() {
+        // Popup menu for requestArea with Send to Repeater, Send to Intruder, Copy, Cut, and Paste
+        JPopupMenu requestAreaPopupMenu = new JPopupMenu();
 
-        // Add "Send to Repeater" menu item
-        JMenuItem sendToRepeaterItem = new JMenuItem("Send to Repeater");
-        sendToRepeaterItem.addActionListener(e -> sendToRepeater());
-        popupMenu.add(sendToRepeaterItem);
+        // Copy option
+        JMenuItem copyItemRequestArea = new JMenuItem("Copy");
+        copyItemRequestArea.addActionListener(e -> requestArea.copy());
+        requestAreaPopupMenu.add(copyItemRequestArea);
 
-        // Add "Send to Intruder" menu item
-        JMenuItem sendToIntruderItem = new JMenuItem("Send to Intruder");
-        sendToIntruderItem.addActionListener(e -> sendToIntruder());
-        popupMenu.add(sendToIntruderItem);
+        // Cut option
+        JMenuItem cutItemRequestArea = new JMenuItem("Cut");
+        cutItemRequestArea.addActionListener(e -> requestArea.cut());
+        requestAreaPopupMenu.add(cutItemRequestArea);
 
-        // Attach the popup menu to requestResponseViewer
-        requestResponseViewer.setComponentPopupMenu(popupMenu);
+        // Paste option
+        JMenuItem pasteItemRequestArea = new JMenuItem("Paste");
+        pasteItemRequestArea.addActionListener(e -> requestArea.paste());
+        requestAreaPopupMenu.add(pasteItemRequestArea);
 
-        // Attach the popup menu to logTable with row selection handling
-        logTable.setComponentPopupMenu(popupMenu);
+        // Attach requestAreaPopupMenu to requestArea only
+        requestArea.setComponentPopupMenu(requestAreaPopupMenu);
+
+        // Popup menu for requestResponseViewer with Copy, Send to Repeater, and Send to Intruder only
+        JPopupMenu viewerPopupMenu = new JPopupMenu();
+
+        // Copy option
+        JMenuItem copyItemViewer = new JMenuItem("Copy");
+        copyItemViewer.addActionListener(e -> requestResponseViewer.copy());
+        viewerPopupMenu.add(copyItemViewer);
+
+        // Separator
+        viewerPopupMenu.addSeparator();
+
+        // Send to Repeater and Send to Intruder for requestResponseViewer
+        JMenuItem sendToRepeaterItemViewer = new JMenuItem("Send to Repeater");
+        sendToRepeaterItemViewer.addActionListener(e -> sendToRepeater());
+        viewerPopupMenu.add(sendToRepeaterItemViewer);
+
+        JMenuItem sendToIntruderItemViewer = new JMenuItem("Send to Intruder");
+        sendToIntruderItemViewer.addActionListener(e -> sendToIntruder());
+        viewerPopupMenu.add(sendToIntruderItemViewer);
+
+        // Attach viewerPopupMenu to requestResponseViewer only
+        requestResponseViewer.setComponentPopupMenu(viewerPopupMenu);
+
+        // Popup menu for logTable with only Send to Repeater and Send to Intruder
+        JPopupMenu logTablePopupMenu = new JPopupMenu();
+
+        JMenuItem sendToRepeaterItemTable = new JMenuItem("Send to Repeater");
+        sendToRepeaterItemTable.addActionListener(e -> sendToRepeater());
+        logTablePopupMenu.add(sendToRepeaterItemTable);
+
+        JMenuItem sendToIntruderItemTable = new JMenuItem("Send to Intruder");
+        sendToIntruderItemTable.addActionListener(e -> sendToIntruder());
+        logTablePopupMenu.add(sendToIntruderItemTable);
+
+        // Attach logTablePopupMenu to logTable only
+        logTable.setComponentPopupMenu(logTablePopupMenu);
+
+        // Ensure the logTable selects the right-clicked row
         logTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mousePressed(java.awt.event.MouseEvent e) {
