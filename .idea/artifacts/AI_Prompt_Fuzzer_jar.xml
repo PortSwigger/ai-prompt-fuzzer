@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="AI_Prompt_Fuzzer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/AI_Prompt_Fuzzer_jar</output-path>
+    <root id="archive" name="AI_Prompt_Fuzzer.jar">
+      <element id="module-output" name="AI_Prompt_Fuzzer" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/net/portswigger/burp/extensions/montoya-api/2024.7/montoya-api-2024.7.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
