@@ -19,6 +19,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 // Imports for parsing XML files
+import javax.swing.table.TableRowSorter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -73,6 +74,10 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         logTable = new JTable(logTableModel);
         logTable.removeColumn(logTable.getColumn("Request")); // Hide "Request" column
         logTable.removeColumn(logTable.getColumn("Response")); // Hide "Response" column
+
+        // Add sorting
+        TableRowSorter<DefaultTableModel> sorter = new TableRowSorter<>(logTableModel);
+        logTable.setRowSorter(sorter);
 
         JScrollPane logScrollPane = new JScrollPane(logTable);
         JPanel logPanel = new JPanel(new BorderLayout());
@@ -198,7 +203,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
     private void sendToRepeater() {
         int selectedRow = logTable.getSelectedRow();
         if (selectedRow >= 0) {
-            HttpRequest request = (HttpRequest) logTableModel.getValueAt(selectedRow, 5);
+            int modelRow = logTable.convertRowIndexToModel(selectedRow);
+            HttpRequest request = (HttpRequest) logTableModel.getValueAt(modelRow, 5);
             if (request != null) {
                 // Sending the selected request to Repeater
                 api.repeater().sendToRepeater(request);
@@ -213,7 +219,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
     private void sendToIntruder() {
         int selectedRow = logTable.getSelectedRow();
         if (selectedRow >= 0) {
-            HttpRequest request = (HttpRequest) logTableModel.getValueAt(selectedRow, 5);
+            int modelRow = logTable.convertRowIndexToModel(selectedRow);
+            HttpRequest request = (HttpRequest) logTableModel.getValueAt(modelRow, 5);
             if (request != null) {
                 // Sending the selected request to Intruder
                 api.intruder().sendToIntruder(request);
@@ -398,8 +405,10 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
     private void updateRequestResponseViewer() {
         int selectedRow = logTable.getSelectedRow();
         if (selectedRow >= 0) {
-            HttpRequest request = (HttpRequest) logTableModel.getValueAt(selectedRow, 5);
-            HttpResponse response = (HttpResponse) logTableModel.getValueAt(selectedRow, 6);
+            // Convert the view row index to the model row index
+            int modelRow = logTable.convertRowIndexToModel(selectedRow);
+            HttpRequest request = (HttpRequest) logTableModel.getValueAt(modelRow, 5);
+            HttpResponse response = (HttpResponse) logTableModel.getValueAt(modelRow, 6);
             requestResponseViewer.setText("Request:\n" + request.toString() + "\n\nResponse:\n" + response.toString());
             // Scroll to the top of the requestResponseViewer
             requestResponseViewer.setCaretPosition(0);
@@ -418,30 +427,29 @@ class CustomRenderer extends DefaultTableCellRenderer {
     private static final Color HIGHLIGHT_COLOR = Color.YELLOW;
     private static final Color EVEN_ROW_COLOR = new Color(240, 240, 240); // Light gray for even rows
     private static final Color ODD_ROW_COLOR = Color.WHITE;               // White for odd rows
-    // private static final Border PADDING = new EmptyBorder(1, 1, 1, 1);
+
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         // Call parent to get default rendering
         Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-        // Get the actual model row index to ensure consistent coloring after sorting
-        int modelRow = table.convertRowIndexToModel(row);
+        // Use view row index for consistent coloring after sorting
+        int viewRow = table.convertRowIndexToModel(row);
 
-        // Check the isValid flag in the last column to determine if the row should be highlighted
-        String isValid = (String) table.getModel().getValueAt(modelRow, 7); // 7th column for isValid
-        //Boolean isValid = (Boolean) table.getModel().getValueAt(row, 7); // 7th column for isValid
+        // Get the isValid flag from the model, at the view's row index
+        String isValid = (String) table.getModel().getValueAt(viewRow, 7); // Column index 7 for "Potential Break" status
 
         if (isSelected) {
             // Use selection colors if the cell is selected
             c.setBackground(table.getSelectionBackground());
             c.setForeground(table.getSelectionForeground());
         } else if ("TRUE".equals(isValid)) {
-            // Set the entire row to the highlight color if isValid is true
+            // Highlight row if "Potential Break" is marked TRUE
             c.setBackground(HIGHLIGHT_COLOR);
             c.setForeground(Color.BLACK);
         } else {
-            // Apply row banding for non-highlighted rows using the model row index
-            if (modelRow % 2 == 0) {
+            // Apply banding for non-highlighted rows
+            if (row % 2 == 0) {
                 c.setBackground(EVEN_ROW_COLOR);  // Light gray for even rows
             } else {
                 c.setBackground(ODD_ROW_COLOR);   // White for odd rows
@@ -449,8 +457,7 @@ class CustomRenderer extends DefaultTableCellRenderer {
             c.setForeground(Color.BLACK);  // Default text color for unselected cells
         }
 
-        // Set cell padding and ensure the renderer is opaque to show background color
-        //((JComponent) c).setBorder(PADDING);
+        // Ensure the renderer is opaque to show background color
         ((JComponent) c).setOpaque(true);
 
         return c;
