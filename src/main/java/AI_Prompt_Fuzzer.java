@@ -151,7 +151,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
 
         // Footer label panel
         JPanel footerPanel = new JPanel(new BorderLayout());
-        JLabel footerLabel = new JLabel("Developed by Moha", JLabel.LEFT);
+        JLabel footerLabel = new JLabel("Developed by Idris", JLabel.LEFT);
         footerPanel.add(footerLabel, BorderLayout.EAST); // Align the label to the right
 
         // South panel combining button panel and footer label
@@ -543,7 +543,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             int length = response.body().length(); // Calculate the response length
             // Convert the isValid boolean to uppercase string
             String isValidStr = isValid ? "TRUE" : "FALSE"; // Convert to uppercase strings
-            String recordTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
+            String recordTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
 
             // Add the request, response, and additional details to the table model
             logTableModel.addRow(new Object[]{recordTime, method, url, status, Integer.toString(length), request, response, isValidStr});
