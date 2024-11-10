@@ -20,6 +20,7 @@ import java.util.concurrent.TimeUnit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.net.URI;
+import java.awt.event.*;
 
 // Imports for parsing XML files
 import javax.swing.table.TableRowSorter;
@@ -151,6 +152,18 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         api.userInterface().registerSuiteTab("AI Prompt Fuzzer", mainPanel);
 
         logTable.getSelectionModel().addListSelectionListener(e -> updateRequestResponseViewer());
+
+        // Add a mouse listener to the table header to detect right-clicks and reset sorting
+        logTable.getTableHeader().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Check if the right button was clicked
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    // Clear the sort keys to reset sorting to the original order
+                    sorter.setSortKeys(null);
+                }
+            }
+        });
     }
 
     // Method to create right-click menus for requestArea and requestResponseViewer
@@ -496,7 +509,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             String recordTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 
             // Add the request, response, and additional details to the table model
-            logTableModel.addRow(new Object[]{recordTime, method, url, status, length, request, response, isValidStr});
+            logTableModel.addRow(new Object[]{recordTime, method, url, status, Integer.toString(length), request, response, isValidStr});
             // Apply the custom renderer to the table
             for (int i = 0; i < logTable.getColumnCount(); i++) {
                 logTable.getColumnModel().getColumn(i).setCellRenderer(new CustomRenderer());
