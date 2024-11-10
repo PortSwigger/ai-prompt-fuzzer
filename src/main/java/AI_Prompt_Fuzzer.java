@@ -17,6 +17,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.net.URI;
 
 // Imports for parsing XML files
 import javax.swing.table.TableRowSorter;
@@ -42,6 +45,9 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
     private JTextArea requestResponseViewer;
     // Payload list
     private NodeList payloadList;
+    // Instance variables for UI components
+    private JProgressBar progressBar; // Add a progress bar reference
+    private JPanel buttonPanel; // Declare buttonPanel
 
     @Override
     public void initialize(MontoyaApi api) {
@@ -98,7 +104,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         mainPanel.add(splitPane, BorderLayout.CENTER);
 
         // Create button panel for Load, Send, Clear, and Insert Placeholder buttons
-        JPanel buttonPanel = new JPanel();
+        buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         JButton loadPayloadButton = new JButton("Load Payloads");
@@ -117,7 +123,27 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         insertPlaceholderButton.addActionListener(e -> insertPlaceholder());
         buttonPanel.add(insertPlaceholderButton);
 
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
+        // Add the "About" button to the button panel
+        JButton aboutButton = new JButton("About");
+        aboutButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showAboutDialog();
+            }
+        });
+        buttonPanel.add(aboutButton);
+
+        // Footer label panel
+        JPanel footerPanel = new JPanel(new BorderLayout());
+        JLabel footerLabel = new JLabel("Developed by Moha", JLabel.LEFT);
+        footerPanel.add(footerLabel, BorderLayout.EAST); // Align the label to the right
+
+        // South panel combining button panel and footer label
+        JPanel southPanel = new JPanel(new BorderLayout());
+        southPanel.add(buttonPanel, BorderLayout.WEST);
+        southPanel.add(footerPanel, BorderLayout.EAST);
+
+        mainPanel.add(southPanel, BorderLayout.SOUTH); // Add southPanel to the main panel
 
         // Add right-click menu to the request/response viewer and log table
         addRightClickMenus();
@@ -258,6 +284,65 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         requestArea.setCaretPosition(start + placeholder.length());
     }
 
+    // Method to show the "About" dialog
+    private void showAboutDialog() {
+        // Create a modal dialog
+        JDialog aboutDialog = new JDialog((Frame) null, "About AI Prompt Fuzzer", true);
+        aboutDialog.setSize(400, 200);
+        aboutDialog.setLayout(new BorderLayout(10, 10));
+
+        // Create a panel with padding for a boxed look, without a title
+        JPanel messagePanel = new JPanel();
+        messagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10)); // Padding only
+
+        // Setting up GridBagLayout for vertical alignment and centered positioning
+        messagePanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.insets = new Insets(5, 0, 5, 0); // Add some padding between labels
+        gbc.anchor = GridBagConstraints.CENTER;
+
+        // Label for version and developer information
+        JLabel toolNameLabel = new JLabel("AI Prompt Fuzzer v1.0", JLabel.CENTER);
+        toolNameLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+        JLabel devNameLabel = new JLabel("Developed by Mohamed Idris", JLabel.CENTER);
+        devNameLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+
+        // Add labels to messagePanel with vertical alignment
+        messagePanel.add(toolNameLabel, gbc);
+        gbc.gridy++; // Move to the next row for the second label
+        messagePanel.add(devNameLabel, gbc);
+
+        // Hyperlink-style label for help and additional information
+        JLabel linkLabel = new JLabel("Help and Additional Information", JLabel.CENTER);
+        linkLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        linkLabel.setForeground(Color.BLUE.darker());
+        linkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        linkLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                try {
+                    Desktop.getDesktop().browse(new URI("https://github.com/moha99sa/AI_Prompt_Fuzzer"));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
+        // Add the link label to the bottom of the messagePanel
+        gbc.gridy++; // Move to the next row for the second label
+        messagePanel.add(linkLabel, gbc);
+
+        // Add messagePanel to the Dialog
+        aboutDialog.add(messagePanel, BorderLayout.CENTER);
+
+        // Center the dialog on the screen
+        aboutDialog.setLocationRelativeTo(null);
+        aboutDialog.setVisible(true);
+    }
+
     // Load payloads from the XML file
     private void loadPayloads() {
         try {
@@ -294,19 +379,35 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
     }
 
     private void sendRequests() {
-        if (requestArea.getText() != null && payloadList.getLength() > 0) {
+        if (!requestArea.getText().isEmpty() && payloadList != null && payloadList.getLength() > 0) {
             String originalRequestStr = requestArea.getText();
-            SwingWorker<Void, Object[]> worker = new SwingWorker<>() {
+            int totalPayloads = payloadList.getLength();
+
+            // Create a progress bar and add it above the "Send Payloads" button
+            JProgressBar progressBar = new JProgressBar(0, 100);
+            progressBar.setStringPainted(true);
+            buttonPanel.add(progressBar); // Add progress bar at the top of the button panel
+            buttonPanel.revalidate();
+            buttonPanel.repaint();
+
+            // Create a SwingWorker for background processing
+            SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
+                private int completedRequests = 0; // Track the number of completed requests
+
                 @Override
                 protected Void doInBackground() throws Exception {
+                    // Use thread pool to send requests asynchronously
                     ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
-                    for (int i = 0; i < payloadList.getLength(); i++) {
+                    for (int i = 0; i < totalPayloads; i++) {
+                        final int currentIndex = i; // Create a final copy of i for use in the lambda
+
                         Element payloadElement = (Element) payloadList.item(i);
 
                         // Get <inject> and <validate> elements
                         String inject = payloadElement.getElementsByTagName("inject").item(0).getTextContent();
                         String validate = payloadElement.getElementsByTagName("validate").item(0).getTextContent();
+                        // Escape only double quotes and backslashes in the inject string
                         String escapedInjectStr = inject.replaceAll("([\"\\\\])", "\\\\$1");
                         String modifiedRequestStr = originalRequestStr.replace(placeholder, escapedInjectStr);
 
@@ -319,8 +420,6 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                             if (modifiedRequest.hasHeader("Host") && !modifiedRequest.method().isEmpty()) {
                                 Runnable requestTask = () -> {
                                     try {
-                                        // Capture the time immediately before sending the request
-                                        String sendTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
                                         HttpResponse response = api.http().sendRequest(modifiedRequest).response();
 
                                         // Escape and sanitize characters
@@ -333,8 +432,14 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                                         // Check if the response body contains the validate string
                                         boolean isValid = escapedResponseBody.contains(escapedValidate);
 
-                                        // Publish results for UI update
-                                        publish(new Object[]{modifiedRequest, response, sendTime, isValid});
+                                        logRequestResponse(modifiedRequest, response, isValid);
+
+                                        // Update completed requests and publish overall progress
+                                        synchronized (this) {
+                                            completedRequests++;
+                                            int progress = (completedRequests * 100) / totalPayloads;
+                                            publish(progress); // Update progress
+                                        }
 
                                         // Small delay between requests to avoid overwhelming the system
                                         TimeUnit.MILLISECONDS.sleep(100);
@@ -359,31 +464,28 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                 }
 
                 @Override
-                protected void process(List<Object[]> chunks) {
-                    // Update the log table with each chunk of results
-                    for (Object[] chunk : chunks) {
-                        HttpRequest request = (HttpRequest) chunk[0];
-                        HttpResponse response = (HttpResponse) chunk[1];
-                        String sendTime = (String) chunk[2];
-                        boolean isValid = (boolean) chunk[3];
-                        logRequestResponse(request, response, sendTime, isValid);
-                    }
+                protected void process(List<Integer> chunks) {
+                    int latestProgress = chunks.get(chunks.size() - 1);
+                    progressBar.setValue(latestProgress); // Set progress bar to latest value
                 }
 
                 @Override
                 protected void done() {
-                    JOptionPane.showMessageDialog(null, "All requests have been sent.");
+                    buttonPanel.remove(progressBar); // Remove progress bar after completion
+                    buttonPanel.revalidate();
+                    buttonPanel.repaint();
                 }
             };
 
             worker.execute(); // Start the SwingWorker task
-        } else {
+        }
+        else {
             JOptionPane.showMessageDialog(null, "No payloads loaded or request selected.");
         }
     }
 
     // Log request-response pair in the table with columns: Time, Method, URL, Status, and Length
-    private void logRequestResponse(HttpRequest request, HttpResponse response, String sendTime, boolean isValid) {
+    private void logRequestResponse(HttpRequest request, HttpResponse response, boolean isValid) {
         SwingUtilities.invokeLater(() -> {
             String method = request.method().toString();
             String url = request.url().toString();
@@ -391,9 +493,10 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             int length = response.body().length(); // Calculate the response length
             // Convert the isValid boolean to uppercase string
             String isValidStr = isValid ? "TRUE" : "FALSE"; // Convert to uppercase strings
+            String recordTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss"));
 
             // Add the request, response, and additional details to the table model
-            logTableModel.addRow(new Object[]{sendTime, method, url, status, length, request, response, isValidStr});
+            logTableModel.addRow(new Object[]{recordTime, method, url, status, length, request, response, isValidStr});
             // Apply the custom renderer to the table
             for (int i = 0; i < logTable.getColumnCount(); i++) {
                 logTable.getColumnModel().getColumn(i).setCellRenderer(new CustomRenderer());
