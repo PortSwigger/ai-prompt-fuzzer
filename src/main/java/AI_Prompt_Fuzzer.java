@@ -100,9 +100,22 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         viewerPanel.add(viewerScrollPane, BorderLayout.CENTER);
 
         // Create a JSplitPane for log table and request/response viewer
-        JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, logPanel, viewerPanel);
-        splitPane.setDividerLocation(250);
-        mainPanel.add(splitPane, BorderLayout.CENTER);
+        JSplitPane verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, logPanel, viewerPanel);
+
+        // Create a JSplitPane to allow resizing between requestArea (WEST) and log/viewer (CENTER)
+        JSplitPane horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, requestPanel, verticalSplitPane);
+        
+        // Set the divider location based on the Burp Suite window's current width and Height
+        mainPanel.addHierarchyListener(e -> {
+            if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && mainPanel.isShowing()) {
+                int burpWindowWidth = mainPanel.getWidth();
+                horizontalSplitPane.setDividerLocation(burpWindowWidth * 40 / 100);
+                int burpWindowHeight = mainPanel.getHeight();
+                verticalSplitPane.setDividerLocation(burpWindowHeight * 40 / 100);
+            }
+        });
+
+        mainPanel.add(horizontalSplitPane, BorderLayout.CENTER);
 
         // Create button panel for Load, Send, Clear, and Insert Placeholder buttons
         buttonPanel = new JPanel();
