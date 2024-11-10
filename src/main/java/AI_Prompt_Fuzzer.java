@@ -49,6 +49,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
     // Instance variables for UI components
     private JProgressBar progressBar; // Add a progress bar reference
     private JPanel buttonPanel; // Declare buttonPanel
+    // SendPayloads button to be accessed by other methods
+    JButton sendRequestsButton = new JButton("Send Payloads");
 
     @Override
     public void initialize(MontoyaApi api) {
@@ -104,7 +106,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
 
         // Create a JSplitPane to allow resizing between requestArea (WEST) and log/viewer (CENTER)
         JSplitPane horizontalSplitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, requestPanel, verticalSplitPane);
-        
+
         // Set the divider location based on the Burp Suite window's current width and Height
         mainPanel.addHierarchyListener(e -> {
             if ((e.getChangeFlags() & HierarchyEvent.SHOWING_CHANGED) != 0 && mainPanel.isShowing()) {
@@ -125,7 +127,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         loadPayloadButton.addActionListener(e -> loadPayloads());
         buttonPanel.add(loadPayloadButton);
 
-        JButton sendRequestsButton = new JButton("Send Payloads");
+        // Adds sendRequests button as disabled
         sendRequestsButton.addActionListener(e -> sendRequests());
         buttonPanel.add(sendRequestsButton);
 
@@ -395,19 +397,36 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                 // Get all <payload> elements
                 payloadList = doc.getElementsByTagName("payload");
                 JOptionPane.showMessageDialog(null, "Payloads loaded: " + payloadList.getLength());
+                sendRequestsButton.setEnabled(true);
             } else {
                 JOptionPane.showMessageDialog(null, "No file selected.");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error loading payloads");
+            JOptionPane.showMessageDialog(null, "Error loading payloads. Please use valid XML payloads file");
         }
     }
 
     private void sendRequests() {
         if (!requestArea.getText().isEmpty() && payloadList != null && payloadList.getLength() > 0) {
-            String originalRequestStr = requestArea.getText();
+            sendRequestsButton.setEnabled(false);
             int totalPayloads = payloadList.getLength();
+            String originalRequestStr = requestArea.getText();
+
+            // Check if user forgets to add a Placeholder
+            if (!originalRequestStr.contains(placeholder)){
+                int userResponse = JOptionPane.showConfirmDialog(
+                        null,
+                        "Placeholder string not found in the request!\nDo you still want to continue?",
+                        "No Placeholder found",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                );
+                if (userResponse != JOptionPane.YES_OPTION) {
+                    sendRequestsButton.setEnabled(true);
+                    return;
+                }
+            }
 
             // Create a progress bar and add it above the "Send Payloads" button
             JProgressBar progressBar = new JProgressBar(0, 100);
@@ -471,14 +490,17 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                                         TimeUnit.MILLISECONDS.sleep(100);
                                     } catch (Exception e) {
                                         JOptionPane.showMessageDialog(null, "Error processing request: " + e.getMessage());
+                                        sendRequestsButton.setEnabled(true);
                                     }
                                 };
                                 executor.submit(requestTask);
                             } else {
                                 JOptionPane.showMessageDialog(null, "Selected Request is invalid.");
+                                sendRequestsButton.setEnabled(true);
                             }
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "Error while building the request: " + e.getMessage());
+                            sendRequestsButton.setEnabled(true);
                             return null;
                         }
                     }
@@ -486,6 +508,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                     // Shutdown the executor gracefully
                     executor.shutdown();
                     executor.awaitTermination(1, TimeUnit.MINUTES);
+                    sendRequestsButton.setEnabled(true);
                     return null;
                 }
 
@@ -507,6 +530,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         }
         else {
             JOptionPane.showMessageDialog(null, "No payloads loaded or request selected.");
+            sendRequestsButton.setEnabled(true);
         }
     }
 
