@@ -49,8 +49,11 @@ After the build completes, the compiled JAR file (AI_Prompt_Fuzzer.jar) will be 
      - Browse to select the AI_Prompt_Fuzzer.jar file you just created.
 5. Load the Extension: Click Next, and Burp Suite should load the extension. You should see a new tab labelled AI Prompt Fuzzer in the Burp Suite interface.
 
+![Alt text](media/Load_in_Burp.jpg)
+
 ## Usage Instructions
 ### Interface Overview
+![Alt text](media/AI_Prompt_Fuzzer_UI.jpg)
 After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Burp Suite. The tab includes the following sections:
 * **Request to be sent**: Request section where you can edit and modify the HTTP request for the target AI/LLM application. It is important to remember to add a placeholder for the fuzzing/brute force payloads.
 * **Requests and Responses Log**: A table display for some information about the requests sent to the target and their responses. The table shows the following attributes (can help in ordering/sorting results): 
