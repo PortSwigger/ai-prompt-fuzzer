@@ -49,11 +49,13 @@ After the build completes, the compiled JAR file (AI_Prompt_Fuzzer.jar) will be 
      - Browse to select the AI_Prompt_Fuzzer.jar file you just created.
 5. Load the Extension: Click Next, and Burp Suite should load the extension. You should see a new tab labelled AI Prompt Fuzzer in the Burp Suite interface.
 
-![Alt text](media/Load_in_Burp.jpg)
+<kbd><a href="#"><img src="media/Load_in_Burp.jpg" alt="Image showing how to load the extension within Burp" /></a></kbd>
 
 ## Usage Instructions
 ### Interface Overview
-![Alt text](media/AI_Prompt_Fuzzer_UI.jpg)
+
+<kbd><a href="#"><img src="media/AI_Prompt_Fuzzer_UI.jpg" alt="Image showing AI Prompt Fuzzer User's Interface" /></a></kbd>
+
 After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Burp Suite. The tab includes the following sections:
 * **Request to be sent**: Request section where you can edit and modify the HTTP request for the target AI/LLM application. It is important to remember to add a placeholder for the fuzzing/brute force payloads.
 * **Requests and Responses Log**: A table display for some information about the requests sent to the target and their responses. The table shows the following attributes (can help in ordering/sorting results): 
@@ -70,9 +72,9 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
 * **Insert Placeholder Button**: Highlight the text you want to replace or add the placeholder to the current cursor position in the Request to be sent.
 * **About Button**: Display the version of the application, the developer's name, and a link to the GitHub page of the tool.
 ### Configuring the Request to be sent
-Before you start testing, you need to add the request to be sent to the `Request to be sent` section and add a placeholder to be replaced with the loaded payloads to be tested. You can send requests to this section from Burp Target, Proxy, Repeater, Intruder ... etc. by using the Right click menu -> Extensions -> AI Prompt Fuzzer -> Send Request.
-Although you can copy and paste requests to the `Request to be sent` section, It is recommended to use one of Burp tools (Target, Proxy, Repeater, Intruder ... etc.) to send a request to make sure that the request to be send is a valid request.
-You can also manually add the placeholder text by writing the following text: [PLACEHOLDER].
+* Before you start testing, you need to add the request to be sent to the `Request to be sent` section and add a placeholder to be replaced with the loaded payloads to be tested. You can send requests to this section from Burp Target, Proxy, Repeater, Intruder ... etc. by using the Right click menu -> Extensions -> AI Prompt Fuzzer -> Send Request.
+* Although you can copy and paste requests to the `Request to be sent` section, It is recommended to use one of Burp tools (Target, Proxy, Repeater, Intruder ... etc.) to send a request to make sure that the request to be send is a valid request.
+* You can also manually add the placeholder text by writing the following text: [PLACEHOLDER].
 ### Running the Fuzzer
 #### Start Fuzzing:
 * After loading the payloads, click the Send Payloads Button to initiate requests.
