@@ -49,7 +49,7 @@ After the build completes, the compiled JAR file (AI_Prompt_Fuzzer.jar) will be 
      - Browse to select the AI_Prompt_Fuzzer.jar file you just created.
 5. Load the Extension: Click Next, and Burp Suite should load the extension. You should see a new tab labelled AI Prompt Fuzzer in the Burp Suite interface.  
 
-Here is quick video:
+Here is quick video (click to watch in Youtube):
 [![How to add AI Prompt Fuzzer to Burp](https://img.youtube.com/vi/Fnu_8vW9rmc/maxresdefault.jpg)](https://www.youtube.com/watch?v=Fnu_8vW9rmc)
 
 ## Usage Instructions
@@ -101,6 +101,9 @@ The Potential Break column is an important feature for highlighting anomalous re
 #### Manual Analysis:
 * Review each highlighted response to evaluate potential risks or issues manually.
 * Document findings and rerun tests with modified payloads if needed to further investigate anomalies.
+
+Here is a tutorial video (click to watch in Youtube):
+[![AI Prompt Fuzzer Tutorial](https://img.youtube.com/vi/Gle2spEZ3ZI/maxresdefault.jpg)](https://www.youtube.com/watch?v=Gle2spEZ3ZI)
 
 ## Payloads and Formatting
 The format for the payloads file is simple and straight forward, all we need is to make sure it looks like the following:
