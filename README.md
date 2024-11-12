@@ -49,9 +49,7 @@ After the build completes, the compiled JAR file (AI_Prompt_Fuzzer.jar) will be 
      - Browse to select the AI_Prompt_Fuzzer.jar file you just created.
 5. Load the Extension: Click Next, and Burp Suite should load the extension. You should see a new tab labelled AI Prompt Fuzzer in the Burp Suite interface.
 
-[![How to add AI Prompt Fuzzer to Burp](https://www.youtube.com/watch?v=_Fnu_8vW9rmc)](https://www.youtube.com/watch?v=Fnu_8vW9rmc)
-
-<kbd><a href="#"><img src="media/Load_in_Burp.jpg" alt="Image showing how to load the extension within Burp" /></a></kbd>
+[![How to add AI Prompt Fuzzer to Burp](https://img.youtube.com/vi/Fnu_8vW9rmc/hqdefault.jpg)](https://www.youtube.com/watch?v=Fnu_8vW9rmc)
 
 ## Usage Instructions
 ### Interface Overview
