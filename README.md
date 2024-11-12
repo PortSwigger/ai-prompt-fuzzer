@@ -122,6 +122,15 @@ The format for the payloads file is simple and straight forward, all we need is 
 ```
 As mentioned in the "How it works" section, in order to identify Potential Breaks, we need to make sure that the payload asks the AI/LLM to include specific text in the response. 
 Save the file as an XML file and that's it :)
+### XML Special Characters
+If you need to use XML special characters within your payload, please remember to use the XML escaped characters version to avoid errors. Here are the five XML special characters and their encoded/escaped versions:
+```
+"   &quot;
+'   &apos;
+<   &lt;
+>   &gt;
+&   &amp;
+```
 
 ## Conclusion
 The AI Prompt Fuzzer extension for Burp Suite is a powerful tool for security researchers and QA testers working with AI APIs/Web Applications. By facilitating bulk testing with varied payloads, it enables systematic probing of AI models to reveal potential weaknesses or unexpected behaviour. Follow the instructions above to compile, install, and effectively use the extension for your testing needs. The tool has already been tested against some applications and proved that it actually detects different types of vulnerabilies based on the Payloads used. I used the tool against well-known challenges such as Gandalf AI and Beat the Bot (Immersive Labs) challenges and I was able to complete all the levels within 10 mins. I built specific payloads for such applications; however, I will not share those payloads to avoid spoiling the challenges and to allow you to enjoy learning ;).
