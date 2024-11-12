@@ -397,6 +397,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                 // Get all <payload> elements
                 payloadList = doc.getElementsByTagName("payload");
                 JOptionPane.showMessageDialog(null, "Payloads loaded: " + payloadList.getLength());
+                // Enable Send Requests button
                 sendRequestsButton.setEnabled(true);
             } else {
                 JOptionPane.showMessageDialog(null, "No file selected.");
@@ -409,7 +410,15 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
 
     private void sendRequests() {
         if (!requestArea.getText().isEmpty() && payloadList != null && payloadList.getLength() > 0) {
+            // Check if the current request is valid
+            if (currentHttpService == null || currentHttpService.toString().isEmpty()){
+                JOptionPane.showMessageDialog(null, "Invalid request, please send a valid request from any other Burp tool.");
+                return;
+            }
+
+            // Disable Send Requests button
             sendRequestsButton.setEnabled(false);
+
             int totalPayloads = payloadList.getLength();
             String originalRequestStr = requestArea.getText();
 
@@ -423,6 +432,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                         JOptionPane.QUESTION_MESSAGE
                 );
                 if (userResponse != JOptionPane.YES_OPTION) {
+                    // Enable Send Requests button
                     sendRequestsButton.setEnabled(true);
                     return;
                 }
@@ -490,16 +500,19 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                                         TimeUnit.MILLISECONDS.sleep(100);
                                     } catch (Exception e) {
                                         JOptionPane.showMessageDialog(null, "Error processing request: " + e.getMessage());
+                                        // Enable Send Requests button
                                         sendRequestsButton.setEnabled(true);
                                     }
                                 };
                                 executor.submit(requestTask);
                             } else {
                                 JOptionPane.showMessageDialog(null, "Selected Request is invalid.");
+                                // Enable Send Requests button
                                 sendRequestsButton.setEnabled(true);
                             }
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "Error while building the request: " + e.getMessage());
+                            // Enable Send Requests button
                             sendRequestsButton.setEnabled(true);
                             return null;
                         }
@@ -508,6 +521,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                     // Shutdown the executor gracefully
                     executor.shutdown();
                     executor.awaitTermination(1, TimeUnit.MINUTES);
+                    // Enable Send Requests button
                     sendRequestsButton.setEnabled(true);
                     return null;
                 }
@@ -530,6 +544,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         }
         else {
             JOptionPane.showMessageDialog(null, "No payloads loaded or request selected.");
+            // Enable Send Requests button
             sendRequestsButton.setEnabled(true);
         }
     }
