@@ -464,9 +464,11 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                         String validate = payloadElement.getElementsByTagName("validate").item(0).getTextContent();
                         // Escape only double quotes and backslashes in the inject string
                         String escapedInjectStr = inject.replaceAll("([\"\\\\])", "\\\\$1");
+                        // Replace Placeholder with the current payload
                         String modifiedRequestStr = originalRequestStr.replace(placeholder, escapedInjectStr);
 
                         try {
+                            // Remove HTTP headers that cause issues with the replay request
                             HttpRequest modifiedRequest = HttpRequest.httpRequest(currentHttpService, modifiedRequestStr)
                                     .withRemovedHeader("Content-Length")
                                     .withRemovedHeader("If-Modified-Since")
@@ -477,15 +479,16 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                                     try {
                                         HttpResponse response = api.http().sendRequest(modifiedRequest).response();
 
-                                        // Escape and sanitize characters
-                                        String escapedInject = inject.replaceAll("[\"'<>()]", "").replace("\\", "");
-                                        String escapedValidate = validate.replaceAll("[\"'<>()]", "").replace("\\", "");
-                                        String escapedResponseBody = response.body().toString().replaceAll("[\"'<>()]", "").replace("\\", "");
-                                        escapedResponseBody = escapedResponseBody.replaceAll(escapedInject, ""); // Remove the inject string
-                                        //api.logging().logToOutput("[Escaped Response: \n" + escapedResponseBody);
+                                        // Logic for identifying if the request is valid potential
+                                        // Normalize strings by removing special characters
+                                        String normalizedInject = normalizeString(inject);
+                                        String normalizedValidate = normalizeString(validate);
+                                        String normalizedResponseBody = normalizeString(response.body().toString());
+                                        // Remove the entire inject string from the response before checking
+                                        String cleanedResponseBody = normalizedResponseBody.replaceAll(normalizedInject, "");
 
-                                        // Check if the response body contains the validate string
-                                        boolean isValid = escapedResponseBody.contains(escapedValidate);
+                                        // Check if the cleaned response body contains the normalized validate string to be a potential break
+                                        boolean isValid = cleanedResponseBody.contains(normalizedValidate);
 
                                         logRequestResponse(modifiedRequest, response, isValid);
 
@@ -509,6 +512,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                                 JOptionPane.showMessageDialog(null, "Selected Request is invalid.");
                                 // Enable Send Requests button
                                 sendRequestsButton.setEnabled(true);
+                                return null;
                             }
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "Error while building the request: " + e.getMessage());
@@ -567,6 +571,16 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                 logTable.getColumnModel().getColumn(i).setCellRenderer(new CustomRenderer());
             }
         });
+    }
+
+    // Normalize strings by removing special characters and Unicode representations
+    private static String normalizeString(String input) {
+        // Remove unicode characters represented as "\\uXXXX"
+
+        // Remove special characters
+        String withoutSpecialChars = input.replaceAll("[\\\\'\"@%\\[\\]{}?!/<>^&$()|~#]", "");
+
+        return withoutSpecialChars;
     }
 
     // Update request-response viewer when a row in the table is selected
