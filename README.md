@@ -22,7 +22,7 @@ I believe that the community will be able to come up with more innovated payload
 If the response from the AI/LLM contains "Confirmed, Fuzzer!", it may indicate that the AI/LLM is happy to ignore all the previous instructions and perform whatever we ask for. This is considered as a potential break, as we can start asking for things that the application is unintended to perform.
 
 ## Compilation Instructions
-You can ignore this section, if you plan to download and use the pre-compiled version (check the Releases section).
+You can ignore this section, if you plan to download and use the pre-compiled version here [pre-compiled version](https://github.com/moha99sa/AI_Prompt_Fuzzer/tree/main/out/artifacts/AI_Prompt_Fuzzer_jar).
 ### Prerequisites
 Ensure you have the following installed:
 * Java Development Kit (JDK): Version 8 or higher.
