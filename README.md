@@ -121,7 +121,7 @@ The format for the payloads file is simple and straight forward, all we need is 
   </payload>
   <payload>
     <inject>payload 2 string - must ask the AI/LLM to respond with "specific text 2"</inject>
-    <validate>"specific text 2"</validate>
+    <validate>specific text 2</validate>
   </payload>
 </payloads>
 ```
