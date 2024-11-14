@@ -31,6 +31,10 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
 import java.io.File;
 
+// Imports for URL Encoding
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+
 public class AI_Prompt_Fuzzer implements BurpExtension {
 
     private MontoyaApi api;
@@ -51,6 +55,10 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
     private JPanel buttonPanel; // Declare buttonPanel
     // SendPayloads button to be accessed by other methods
     JButton sendRequestsButton = new JButton("Send Payloads");
+    // URL encoding option
+    private JCheckBox urlEncodePayloads = new JCheckBox("URLEncode payloads");
+    // escape (") and (\) option
+    JCheckBox escapeSpecialChars = new JCheckBox("Escape (\") and (\\) in payloads");
 
     @Override
     public void initialize(MontoyaApi api) {
@@ -149,6 +157,15 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         });
         buttonPanel.add(aboutButton);
 
+        // JPanel for the payload settings
+        JPanel payloadSettings = new JPanel();
+        payloadSettings.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        // Add payload options
+        payloadSettings.add(urlEncodePayloads);
+        escapeSpecialChars.setSelected(true);
+        payloadSettings.add(escapeSpecialChars);
+
         // Footer label panel
         JPanel footerPanel = new JPanel(new BorderLayout());
         JLabel footerLabel = new JLabel("Developed by Idris", JLabel.LEFT);
@@ -158,6 +175,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(buttonPanel, BorderLayout.WEST);
         southPanel.add(footerPanel, BorderLayout.EAST);
+        southPanel.add(payloadSettings,BorderLayout.SOUTH);
 
         mainPanel.add(southPanel, BorderLayout.SOUTH); // Add southPanel to the main panel
 
@@ -462,10 +480,21 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                         // Get <inject> and <validate> elements
                         String inject = payloadElement.getElementsByTagName("inject").item(0).getTextContent();
                         String validate = payloadElement.getElementsByTagName("validate").item(0).getTextContent();
-                        // Escape only double quotes and backslashes in the inject string
-                        String escapedInjectStr = inject.replaceAll("([\"\\\\])", "\\\\$1");
+
+                        // Apply payload options before sending
+                        String configuredInject = inject;
+                        // Escape special characters in the payload
+                        if (escapeSpecialChars.isSelected()) {
+                            // Escape only double quotes and backslashes in the inject string
+                            configuredInject = inject.replaceAll("([\"\\\\])", "\\\\$1");
+                        };
+                        // URL encode the payload
+                        if (urlEncodePayloads.isSelected()) {
+                            configuredInject = URLEncoder.encode(configuredInject, StandardCharsets.UTF_8);
+                        };
+
                         // Replace Placeholder with the current payload
-                        String modifiedRequestStr = originalRequestStr.replace(placeholder, escapedInjectStr);
+                        String modifiedRequestStr = originalRequestStr.replace(placeholder, configuredInject);
 
                         try {
                             // Remove HTTP headers that cause issues with the replay request
