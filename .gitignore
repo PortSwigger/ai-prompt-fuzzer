@@ -38,4 +38,4 @@ build/
 .DS_Store
 
 ### locally compiled version
-# out/
+out/
