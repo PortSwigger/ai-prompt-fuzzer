@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -446,6 +447,24 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                         null,
                         "Placeholder string not found in the request!\nDo you still want to continue?",
                         "No Placeholder found",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE
+                );
+                if (userResponse != JOptionPane.YES_OPTION) {
+                    // Enable Send Requests button
+                    sendRequestsButton.setEnabled(true);
+                    return;
+                }
+            }
+
+            // Check if user forgets to use URL encoding for a GET request
+            HttpRequest thisRequest = HttpRequest.httpRequest(currentHttpService, originalRequestStr);
+            if (Objects.equals(thisRequest.method(), "GET") && !urlEncodePayloads.isSelected()){
+                int userResponse = JOptionPane.showConfirmDialog(
+                        null,
+                        "Seems like you are trying to send a GET request while URLEncode payload option is not selected." +
+                                " Sending clear-text payloads over URL may result on errors.\nDo you still want to continue?",
+                        "GET request without URL encoding",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE
                 );
