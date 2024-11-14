@@ -347,7 +347,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         gbc.anchor = GridBagConstraints.CENTER;
 
         // Label for version and developer information
-        JLabel toolNameLabel = new JLabel("AI Prompt Fuzzer v1.0", JLabel.CENTER);
+        JLabel toolNameLabel = new JLabel("AI Prompt Fuzzer v1.0.0", JLabel.CENTER);
         toolNameLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
 
         JLabel devNameLabel = new JLabel("Developed by Mohamed Idris", JLabel.CENTER);
