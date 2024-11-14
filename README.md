@@ -126,7 +126,7 @@ The format for the payloads file is simple and straight forward, all we need is 
 </payloads>
 ```
 As mentioned in the "How it works" section, in order to identify Potential Breaks, we need to make sure that the payload asks the AI/LLM to include specific text in the response. 
-Save the file as an XML file and that's it :)
+Finally, Save the file as an XML file and you will be ready to go :wink:.
 ### XML Special Characters
 If you need to use XML special characters within your payload, please remember to use the XML escaped characters version to avoid errors. Here are the five XML special characters and their encoded/escaped versions:
 ```
@@ -139,7 +139,7 @@ If you need to use XML special characters within your payload, please remember t
 
 ## Conclusion
 The AI Prompt Fuzzer extension for Burp Suite is a powerful tool for security researchers and QA testers working with AI APIs/Web Applications. By facilitating bulk testing with varied payloads, it enables systematic probing of AI models to reveal potential weaknesses or unexpected behaviour. Follow the instructions above to compile, install, and effectively use the extension for your testing needs.   
-The tool has proven effective against various applications, identifying different types of vulnerabilities based on tailored payloads. For example, in well-known challenges like Gandalf AI and Beat the Bot (by Immersive Labs), the extension successfully completed all levels within 10 minutes. Custom payloads were designed specifically for these “reveal the secret” scenarios, though they are not shared here to preserve the learning experience.   
+The tool has proven effective against various applications, identifying different types of vulnerabilities based on tailored payloads. For example, in well-known challenges like Gandalf AI and Beat the Bot (by Immersive Labs), the extension successfully completed all levels within 10 minutes. Custom payloads were designed specifically for these “reveal the secret” scenarios, though they are not shared here to preserve the learning experience :innocent:.   
 Beyond challenges, the extension has also been tested on real-world applications, where it demonstrated significant value by automating analysis and discovering critical vulnerabilities. This tool’s comprehensive functionality provides unique insights, making it an essential asset for anyone committed to the security and robustness of AI-powered applications.
 
 
