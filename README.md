@@ -72,10 +72,13 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
 * **Clear Log Button**: Clear the Requests and Responses Log table.
 * **Insert Placeholder Button**: Highlight the text you want to replace or add the placeholder to the current cursor position in the Request to be sent.
 * **About Button**: Display the version of the application, the developer's name, and a link to the GitHub page of the tool.
+* **URLEncode payloads**: Check this box when you need to encode payloads using URL encoding before sending to the target application. This is crucial in some situations such as sending a payloads as a GET request where the parameter is sent over the URL. Another interesting situation is when the target application fails to understand special characters used by different lanaguage other than English. For instance, sending a Spanish payload that involves some special characters may result in an invalid response or analysis. This may solved by encoding the payloads using URL encoding.
+* **Escape (") and (\) in payloads**: Check this box to escape the special characters " and \ in the payloads to avoid errors with some apps (e.g. JSON based requests). The two chracters will be escaped within the payloads before sending to the target application. Escaped characters will look like the following: \\" and \\\\.
 ### Configuring the Request to be sent
 * Before you start testing, you need to add the request to be sent to the `Request to be sent` section and add a placeholder to be replaced with the loaded payloads to be tested. You can send requests to this section from Burp Target, Proxy, Repeater, Intruder ... etc. by using the Right click menu -> Extensions -> AI Prompt Fuzzer -> Send Request.
 * Although you can copy and paste requests to the `Request to be sent` section, It is recommended to use one of Burp tools (Target, Proxy, Repeater, Intruder ... etc.) to send a request to make sure that the request to be send is a valid request.
 * You can also manually add the placeholder text by writing the following text: [PLACEHOLDER].
+* For GET based requests, it is recommended to use URL encoding to avoid errors.
 
 <kbd><a href="#"><img src="media/Send_a_Request_to_AI_Prompt_Fuzzer.jpg" alt="Image showing how to send a Request to AI Prompt Fuzzer" /></a></kbd>
 
