@@ -103,6 +103,7 @@ The Potential Break column is an important feature for highlighting anomalous re
 * The tool highlights rows in yellow where a potential break is detected, making it easier to spot unusual behaviour.
 #### Manual Analysis:
 * Review each highlighted response to evaluate potential risks or issues manually.
+* It is recommended to review all results (including those with False Potential Break) to understand the behaviour of the utilized AI Model.
 * Document findings and rerun tests with modified payloads if needed to further investigate anomalies.
 
 Here is a tutorial video (click to watch in Youtube):
@@ -136,6 +137,6 @@ If you need to use XML special characters within your payload, please remember t
 ```
 
 ## Conclusion
-The AI Prompt Fuzzer extension for Burp Suite is a powerful tool for security researchers and QA testers working with AI APIs/Web Applications. By facilitating bulk testing with varied payloads, it enables systematic probing of AI models to reveal potential weaknesses or unexpected behaviour. Follow the instructions above to compile, install, and effectively use the extension for your testing needs. The tool has already been tested against some applications and proved that it actually detects different types of vulnerabilies based on the Payloads used. I used the tool against well-known challenges such as Gandalf AI and Beat the Bot (Immersive Labs) challenges and I was able to complete all the levels within 10 mins. I built specific payloads for such applications; however, I will not share those payloads to avoid spoiling the challenges and to allow you to enjoy learning ;).
+The AI Prompt Fuzzer extension for Burp Suite is a powerful tool for security researchers and QA testers working with AI APIs/Web Applications. By facilitating bulk testing with varied payloads, it enables systematic probing of AI models to reveal potential weaknesses or unexpected behaviour. Follow the instructions above to compile, install, and effectively use the extension for your testing needs. The tool has already been tested against some applications and proved that it actually detects different types of vulnerabilies based on the Payloads used. For example, I used the tool against well-known challenges such as Gandalf AI and Beat the Bot (Immersive Labs) challenges and I was able to complete all the levels within 10 mins. I built specific payloads for such applications; however, I will not share those payloads to avoid spoiling the challenges and to allow you to enjoy learning ;). I also used the extension against some real-world applications, it helped me hugely on automating and analyzing those applications and in finding some interesting vulnerabilities. 
 
 
