@@ -12,7 +12,6 @@ import javax.swing.SwingWorker;
 import java.awt.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutorService;
@@ -39,11 +38,9 @@ import java.nio.charset.StandardCharsets;
 public class AI_Prompt_Fuzzer implements BurpExtension {
 
     private MontoyaApi api;
-    private List<String> payloads = new ArrayList<>();
-    private String placeholder = "[PLACEHOLDER]";
+    private final String placeholder = "[PLACEHOLDER]";
     private static JTextArea requestArea;
     private static HttpService currentHttpService;
-    private static HttpRequest currentRequest;
     private static final int THREAD_POOL_SIZE = 10; // Number of threads in the pool
     // Components for the splitpane
     private JTable logTable;
@@ -51,13 +48,12 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
     private JTextArea requestResponseViewer;
     // Payload list
     private NodeList payloadList;
-    // Instance variables for UI components
-    private JProgressBar progressBar; // Add a progress bar reference
-    private JPanel buttonPanel; // Declare buttonPanel
+    // Declare buttonPanel
+    private JPanel buttonPanel;
     // SendPayloads button to be accessed by other methods
     JButton sendRequestsButton = new JButton("Send Payloads");
     // URL encoding option
-    private JCheckBox urlEncodePayloads = new JCheckBox("URLEncode payloads");
+    private final JCheckBox urlEncodePayloads = new JCheckBox("URLEncode payloads");
     // escape (") and (\) option
     JCheckBox escapeSpecialChars = new JCheckBox("Escape (\") and (\\) in payloads");
 
@@ -223,7 +219,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         // Attach requestAreaPopupMenu to requestArea only
         requestArea.setComponentPopupMenu(requestAreaPopupMenu);
 
-        // Popup menu for requestResponseViewer with Copy, Send to Repeater, and Send to Intruder only
+        // JPopup menu for requestResponseViewer with Copy, Send to Repeater, and Send to Intruder only
         JPopupMenu viewerPopupMenu = new JPopupMenu();
 
         // Copy option
@@ -435,9 +431,6 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                 return;
             }
 
-            // Disable Send Requests button
-            sendRequestsButton.setEnabled(false);
-
             int totalPayloads = payloadList.getLength();
             String originalRequestStr = requestArea.getText();
 
@@ -452,7 +445,6 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                 );
                 if (userResponse != JOptionPane.YES_OPTION) {
                     // Enable Send Requests button
-                    sendRequestsButton.setEnabled(true);
                     return;
                 }
             }
@@ -470,7 +462,6 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                 );
                 if (userResponse != JOptionPane.YES_OPTION) {
                     // Enable Send Requests button
-                    sendRequestsButton.setEnabled(true);
                     return;
                 }
             }
@@ -482,9 +473,13 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             buttonPanel.revalidate();
             buttonPanel.repaint();
 
+            // Disable Send Requests button
+            sendRequestsButton.setEnabled(false);
+
             // Create a SwingWorker for background processing
-            SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
-                private int completedRequests = 0; // Track the number of completed requests
+            SwingWorker<Void, Integer> worker = new SwingWorker<>() {
+                // Track the number of completed requests
+                private int completedRequests = 0;
 
                 @Override
                 protected Void doInBackground() throws Exception {
@@ -492,7 +487,6 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                     ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
                     for (int i = 0; i < totalPayloads; i++) {
-                        final int currentIndex = i; // Create a final copy of i for use in the lambda
 
                         Element payloadElement = (Element) payloadList.item(i);
 
@@ -506,11 +500,11 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                         if (escapeSpecialChars.isSelected()) {
                             // Escape only double quotes and backslashes in the inject string
                             configuredInject = inject.replaceAll("([\"\\\\])", "\\\\$1");
-                        };
+                        }
                         // URL encode the payload
                         if (urlEncodePayloads.isSelected()) {
                             configuredInject = URLEncoder.encode(configuredInject, StandardCharsets.UTF_8);
-                        };
+                        }
 
                         // Replace Placeholder with the current payload
                         String modifiedRequestStr = originalRequestStr.replace(placeholder, configuredInject);
@@ -604,8 +598,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
     // Log request-response pair in the table with columns: Time, Method, URL, Status, and Length
     private void logRequestResponse(HttpRequest request, HttpResponse response, boolean isValid) {
         SwingUtilities.invokeLater(() -> {
-            String method = request.method().toString();
-            String url = request.url().toString();
+            String method = request.method();
+            String url = request.url();
             String status = String.valueOf(response.statusCode());
             int length = response.body().length(); // Calculate the response length
             // Convert the isValid boolean to uppercase string
@@ -623,12 +617,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
 
     // Normalize strings by removing special characters and Unicode representations
     private static String normalizeString(String input) {
-        // Remove unicode characters represented as "\\uXXXX"
-
         // Remove special characters
-        String withoutSpecialChars = input.replaceAll("[\\\\'\"@%\\[\\]{}?!/<>^&$()|~#]", "");
-
-        return withoutSpecialChars;
+        return input.replaceAll("[\\\\'\"@%\\[\\]{}?!/<>^&$()|~#]", "");
     }
 
     // Update request-response viewer when a row in the table is selected
