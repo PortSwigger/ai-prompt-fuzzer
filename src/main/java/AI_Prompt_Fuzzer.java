@@ -10,6 +10,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.SwingWorker;
 import java.awt.*;
+import java.net.URLDecoder;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -521,16 +522,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                                     try {
                                         HttpResponse response = api.http().sendRequest(modifiedRequest).response();
 
-                                        // Logic for identifying if the request is valid potential
-                                        // Normalize strings by removing special characters
-                                        String normalizedInject = normalizeString(inject);
-                                        String normalizedValidate = normalizeString(validate);
-                                        String normalizedResponseBody = normalizeString(response.body().toString());
-                                        // Remove the entire inject string from the response before checking
-                                        String cleanedResponseBody = normalizedResponseBody.replaceAll(normalizedInject, "");
-
-                                        // Check if the cleaned response body contains the normalized validate string to be a potential break
-                                        boolean isValid = cleanedResponseBody.contains(normalizedValidate);
+                                        // Check if the response contains a valid potential
+                                        boolean isValid = isPotential(inject,validate,response.bodyToString());
 
                                         logRequestResponse(modifiedRequest, response, isValid);
 
@@ -617,8 +610,32 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
 
     // Normalize strings by removing special characters and Unicode representations
     private static String normalizeString(String input) {
-        // Remove special characters
-        return input.replaceAll("[\\\\'\"@%\\[\\]{}?!/<>^&$()|~#]", "");
+        // Remove special characters, % is not included to avoid messing URLEncoded strings
+        return input.replaceAll("[\\\\'\"@\\[\\]{}?!/<>^&$()|~#]", "");
+    }
+
+    // isPotential logic. Try first to remove replicated user prompt then check for validate string
+    private boolean isPotential(String inject, String validate, String responseBody){
+        // Logic for identifying if the request is a valid potential
+        // Normalize strings by removing special characters
+        String normalizedInject = normalizeString(inject);
+        String normalizedValidate = normalizeString(validate);
+        String normalizedResponseBody = normalizeString(responseBody);
+        // Remove the entire inject string from the response before checking
+        String cleanedResponseBody = normalizedResponseBody.replaceAll(normalizedInject, "");
+
+        // Check if the cleaned response body contains the normalized validate string to be a potential break
+        boolean isValid = cleanedResponseBody.contains(normalizedValidate);
+
+        // If isValid = true and URLEncoded, try to url decode then check again
+        if (isValid && urlEncodePayloads.isSelected()){
+            String urlDecodedResponseBody = URLDecoder.decode(cleanedResponseBody, StandardCharsets.UTF_8);
+            String normalizedDecodedResponseBody = normalizeString(urlDecodedResponseBody);
+            String urlDecodedCleanedResponseBody = normalizedDecodedResponseBody.replaceAll(normalizedInject, "");
+            isValid = urlDecodedCleanedResponseBody.contains(normalizedValidate);
+        }
+
+        return isValid;
     }
 
     // Update request-response viewer when a row in the table is selected
