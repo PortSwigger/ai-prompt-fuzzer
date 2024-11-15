@@ -107,6 +107,7 @@ The Potential Break column is an important feature for highlighting anomalous re
 * Review each highlighted response to evaluate potential risks or issues manually.
 * It is recommended to review all results (including those with False Potential Break) to understand the behaviour of the utilized AI Model.
 * Document findings and rerun tests with modified payloads if needed to further investigate anomalies.
+* It is recommended to send the payloads multiple times and review the results as the AI/LLM may change their behaviour by replicating the requests.
 
 Here is a tutorial video (click to watch in Youtube):
 [![AI Prompt Fuzzer Tutorial](https://img.youtube.com/vi/Gle2spEZ3ZI/maxresdefault.jpg)](https://www.youtube.com/watch?v=Gle2spEZ3ZI)
