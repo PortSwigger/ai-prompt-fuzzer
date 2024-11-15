@@ -610,8 +610,14 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
 
     // Normalize strings by removing special characters and Unicode representations
     private static String normalizeString(String input) {
+        // URLDecode two times to avoid issues with URLEncoded responses
+        String normalizedString = URLDecoder.decode(input, StandardCharsets.UTF_8);
+        normalizedString = URLDecoder.decode(normalizedString, StandardCharsets.UTF_8);
+
         // Remove special characters, % is not included to avoid messing URLEncoded strings
-        return input.replaceAll("[\\\\'\"@\\[\\]{}?!/<>^&$()|~#]", "");
+        normalizedString = normalizedString.replaceAll("[\\\\'\"@\\[\\]{}?!/<>^&$()|~#]", "");
+
+        return normalizedString;
     }
 
     // isPotential logic. Try first to remove replicated user prompt then check for validate string
@@ -626,14 +632,6 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
 
         // Check if the cleaned response body contains the normalized validate string to be a potential break
         boolean isValid = cleanedResponseBody.contains(normalizedValidate);
-
-        // If isValid = true and URLEncoded, try to url decode then check again
-        if (isValid && urlEncodePayloads.isSelected()){
-            String urlDecodedResponseBody = URLDecoder.decode(cleanedResponseBody, StandardCharsets.UTF_8);
-            String normalizedDecodedResponseBody = normalizeString(urlDecodedResponseBody);
-            String urlDecodedCleanedResponseBody = normalizedDecodedResponseBody.replaceAll(normalizedInject, "");
-            isValid = urlDecodedCleanedResponseBody.contains(normalizedValidate);
-        }
 
         return isValid;
     }
