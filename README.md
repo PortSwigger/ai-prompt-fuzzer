@@ -144,4 +144,15 @@ The AI Prompt Fuzzer extension for Burp Suite is a powerful tool for security re
 The tool has proven effective against various applications, identifying different types of vulnerabilities based on tailored payloads. For example, in well-known challenges like Gandalf AI and Beat the Bot (by Immersive Labs), the extension successfully completed all levels within 10 minutes. Custom payloads were designed specifically for these “reveal the secret” scenarios, though they are not shared here to preserve the learning experience :innocent:.   
 Beyond challenges, the extension has also been tested on real-world applications, where it demonstrated significant value by automating analysis and discovering critical vulnerabilities. This tool’s comprehensive functionality provides unique insights, making it an essential asset for anyone committed to the security and robustness of AI-powered applications.
 
+## Top Sponsors
+TBD   
+TBD   
+TBD   
+
+### Sponsors
+TBD   
+TBD   
+TBD   
+
+
 
