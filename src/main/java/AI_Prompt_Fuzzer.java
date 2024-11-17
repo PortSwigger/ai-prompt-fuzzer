@@ -375,9 +375,27 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             }
         });
 
+        // Hyperlink-style label for help and additional information
+        JLabel downloadLinkLabel = new JLabel("Download GeneralPayloads.xml", JLabel.CENTER);
+        downloadLinkLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        downloadLinkLabel.setForeground(Color.BLUE.darker());
+        downloadLinkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        downloadLinkLabel.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                try {
+                    Desktop.getDesktop().browse(new URI("https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml"));
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        });
+
         // Add the link label to the bottom of the messagePanel
         gbc.gridy++; // Move to the next row for the second label
         messagePanel.add(linkLabel, gbc);
+        gbc.gridy++; // Move to the next row for the third label
+        messagePanel.add(downloadLinkLabel, gbc);
 
         // Add messagePanel to the Dialog
         aboutDialog.add(messagePanel, BorderLayout.CENTER);
@@ -631,9 +649,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         String cleanedResponseBody = normalizedResponseBody.replaceAll(normalizedInject, "");
 
         // Check if the cleaned response body contains the normalized validate string to be a potential break
-        boolean isValid = cleanedResponseBody.contains(normalizedValidate);
+        return cleanedResponseBody.contains(normalizedValidate);
 
-        return isValid;
     }
 
     // Update request-response viewer when a row in the table is selected
