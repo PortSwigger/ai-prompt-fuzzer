@@ -68,7 +68,7 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
   - Length: The size/length of the response.
   - Potential Break: Indicator if the response triggers a potential anomaly or predefined condition. For instance, when TRUE, it indicates that the response matches the expected answer for the specific payload sent in the request.
 * **Request and Response Viewer**: A text area that shows the full content of the selected request and response in the log table. Here, you can verify and check the payload sent to the server and the response received.
-* **Load Payloads Button**: Allows you to upload a payload file. Payloads should be stored in an XML file, with specific format (check the attached GeneralPayloads.xml or review the Payloads and Formatting section). A sample payloads file has already been included within the home folder of this project (GeneralPayloads.xml).
+* **Load Payloads Button**: Allows you to upload a payload file. Payloads should be stored in an XML file, with specific format (check the attached [GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml) or review the Payloads and Formatting section). A sample payloads file has already been included within the home folder of this project ([GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml)).
 * **Send Payloads Button**: After loading the payload file and inserting a placeholder, this button sends request after replacing the placeholder with the payloads to the target applications and display the results in the Log table.
 * **Clear Log Button**: Clear the Requests and Responses Log table.
 * **Insert Placeholder Button**: Highlight the text you want to replace or add the placeholder to the current cursor position in the Request to be sent.
@@ -80,7 +80,7 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
 * Although you can copy and paste requests to the `Request to be sent` section, It is recommended to use one of Burp tools (Target, Proxy, Repeater, Intruder ... etc.) to send a request to make sure that the request to be send is a valid request.
 * You can also manually add the placeholder text by writing the following text: [PLACEHOLDER].
 * For GET based requests, it is recommended to use URL encoding to avoid errors.
-* Load payloads from a local file to start testing. A sample payloads file has already been included within the home folder of this project (GeneralPayloads.xml).
+* Load payloads from a local file to start testing. A sample payloads file has already been included within the home folder of this project ([GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml)).
 
 <kbd><a href="#"><img src="media/Send_a_Request_to_AI_Prompt_Fuzzer.jpg" alt="Image showing how to send a Request to AI Prompt Fuzzer" /></a></kbd>
 
