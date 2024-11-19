@@ -59,7 +59,7 @@ Here is quick video (click to watch in Youtube):
 <kbd><a href="#"><img src="media/AI_Prompt_Fuzzer_UI.jpg" alt="Image showing AI Prompt Fuzzer User's Interface" /></a></kbd>
 
 After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Burp Suite. The tab includes the following sections:
-* **Request to be sent**: Request section where you can edit and modify the HTTP request for the target AI/LLM application. It is important to remember to add a placeholder for the fuzzing/brute force payloads.
+* **Request to be sent**: Request panel where you can edit and modify the HTTP request for the target AI/LLM application. It is important to remember to add a placeholder for the fuzzing/brute force payloads.
 * **Requests and Responses Log**: A table display for some information about the requests sent to the target and their responses. The table shows the following attributes (can help in ordering/sorting results): 
   - Time: When the response received.
   - Method: The HTTP Method used.
@@ -76,8 +76,8 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
 * **URLEncode payloads**: Check this box when you need to encode payloads using URL encoding before sending to the target application. This is crucial in some situations such as sending a payloads as a GET request where the parameter is sent over the URL. Another interesting situation is when the target application fails to understand special characters used by different lanaguage other than English. For instance, sending a Spanish payload that involves some special characters may result in an invalid response or analysis. This may solved by encoding the payloads using URL encoding.
 * **Escape (") and (\) in payloads**: Check this box to escape the special characters " and \ in the payloads to avoid errors with some apps (e.g. JSON based requests). The two chracters will be escaped within the payloads before sending to the target application. Escaped characters will look like the following: \\" and \\\\.
 ### Configuring the Request to be sent
-* Before you start testing, you need to add the request to be sent to the `Request to be sent` section and add a placeholder to be replaced with the loaded payloads to be tested. You can send requests to this section from Burp Target, Proxy, Repeater, Intruder ... etc. by using the Right click menu -> Extensions -> AI Prompt Fuzzer -> Send Request.
-* Although you can copy and paste requests to the `Request to be sent` section, It is recommended to use one of Burp tools (Target, Proxy, Repeater, Intruder ... etc.) to send a request to make sure that the request to be send is a valid request.
+* Before you start testing, you need to add the request to be sent to the `Request to be sent` panel and add a placeholder to be replaced with the loaded payloads to be tested. You can send requests to this panel from Burp Target, Proxy, Repeater, Intruder ... etc. by using the Right click menu -> Extensions -> AI Prompt Fuzzer -> Send Request.
+* Although you can copy and paste requests to the `Request to be sent` panel, It is recommended to use one of Burp tools (Target, Proxy, Repeater, Intruder ... etc.) to send a request to make sure that the request to be send is a valid request.
 * You can also manually add the placeholder text by writing the following text: [PLACEHOLDER].
 * For GET based requests, it is recommended to use URL encoding to avoid errors.
 * Load payloads from a local file to start testing. A sample payloads file has already been included within the home folder of this project ([GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml)).
@@ -96,7 +96,7 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
 * You can unsort or reset sorting by the clicking the right click on the header of the table.
 * It is possible to send a specific request to the Repeater or Intruder tool (for further analysis) by using the right click menu (e.g., right click on specific row -> Send to Repeater).
 #### Viewing Responses:
-* Click on any row in the Log Table to display the full response in the Request and Response Viewer section. This feature helps you inspect the response in detail to understand the AI model’s behaviour for each payload.
+* Click on any row in the Log Table to display the full response in the Request and Response Viewer panel. This feature helps you inspect the response in detail to understand the AI model’s behaviour for each payload.
 * It is possible to send a specific request to the Repeater or Intruder tool (for further analysis) by using the right click menu (e.g., right click -> Send to Repeater).
 #### Identifying Potential Breaks
 The Potential Break column is an important feature for highlighting anomalous responses, such as errors, unexpected outputs, or other predefined conditions that might indicate a vulnerability or bug.
