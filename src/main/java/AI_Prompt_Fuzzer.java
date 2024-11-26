@@ -555,7 +555,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                                         // Small delay between requests to avoid overwhelming the system
                                         TimeUnit.MILLISECONDS.sleep(100);
                                     } catch (Exception e) {
-                                        JOptionPane.showMessageDialog(null, "Error processing request: " + e.getMessage());
+                                        //JOptionPane.showMessageDialog(null, "Error processing request: " + e.getMessage());
+                                        api.logging().logToOutput("[E]: Error processing request: " + e.getMessage());
                                         // Enable Send Requests button
                                         sendRequestsButton.setEnabled(true);
                                     }
