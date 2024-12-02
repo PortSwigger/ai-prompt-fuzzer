@@ -25,6 +25,10 @@ import java.awt.event.*;
 
 // Imports for parsing XML files
 import javax.swing.table.TableRowSorter;
+import javax.swing.text.AttributeSet;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.DocumentFilter;
+import javax.swing.text.PlainDocument;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -57,6 +61,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
     private final JCheckBox urlEncodePayloads = new JCheckBox("URLEncode payloads");
     // escape (") and (\) option
     JCheckBox escapeSpecialChars = new JCheckBox("Escape (\") and (\\) in payloads");
+    // Define minValidateTextBox
+    JTextField minValidateTextBox = new JTextField(2);
 
     @Override
     public void initialize(MontoyaApi api) {
@@ -156,13 +162,54 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         buttonPanel.add(aboutButton);
 
         // JPanel for the payload settings
-        JPanel payloadSettings = new JPanel();
-        payloadSettings.setLayout(new FlowLayout(FlowLayout.LEFT));
+        JPanel settings = new JPanel();
+        settings.setLayout(new FlowLayout(FlowLayout.LEFT));
+
+        // Create label and text box for "Minimum 'validate' count for potential break"
+        JLabel minValidateLabel = new JLabel("Minimum count of the validate string for potential break");
+        minValidateTextBox.setText("1");
+
+        // Input mask to accept only non-negative integers
+        PlainDocument doc = (PlainDocument) minValidateTextBox.getDocument();
+        doc.setDocumentFilter(new DocumentFilter() {
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs) throws BadLocationException {
+                if (text.matches("\\d*")) { // Allow only digits
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr) throws BadLocationException {
+                if (string.matches("\\d*")) { // Allow only digits
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+
+            @Override
+            public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
+                super.remove(fb, offset, length);
+            }
+        });
+
+        // Add focus listener to set default value to 1 if the text box is left empty
+        minValidateTextBox.addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (minValidateTextBox.getText().trim().isEmpty()) {
+                    minValidateTextBox.setText("1");
+                }
+            }
+        });
+
+        // Add the label and text box to the payloadSettings panel
+        settings.add(minValidateLabel);
+        settings.add(minValidateTextBox);
 
         // Add payload options
-        payloadSettings.add(urlEncodePayloads);
+        settings.add(urlEncodePayloads);
         escapeSpecialChars.setSelected(true);
-        payloadSettings.add(escapeSpecialChars);
+        settings.add(escapeSpecialChars);
 
         // Footer label panel
         JPanel footerPanel = new JPanel(new BorderLayout());
@@ -173,7 +220,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         JPanel southPanel = new JPanel(new BorderLayout());
         southPanel.add(buttonPanel, BorderLayout.WEST);
         southPanel.add(footerPanel, BorderLayout.EAST);
-        southPanel.add(payloadSettings,BorderLayout.SOUTH);
+        southPanel.add(settings,BorderLayout.SOUTH);
 
         mainPanel.add(southPanel, BorderLayout.SOUTH); // Add southPanel to the main panel
 
@@ -641,6 +688,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
 
     // isPotential logic. Try first to remove replicated user prompt then check for validate string
     private boolean isPotential(String inject, String validate, String responseBody){
+        /*
         // Logic for identifying if the request is a valid potential
         // Normalize strings by removing special characters
         String normalizedInject = normalizeString(inject);
@@ -651,7 +699,11 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
 
         // Check if the cleaned response body contains the normalized validate string to be a potential break
         return cleanedResponseBody.contains(normalizedValidate);
+         */
 
+        // check if the count of the validate string is more than or equal to user's value
+        //api.logging().logToOutput("[i]: Validate occurrences: " + (responseBody.split(validate, -1).length - 1));
+        return responseBody.split(validate, -1).length - 1 >= Integer.parseInt(minValidateTextBox.getText());
     }
 
     // Update request-response viewer when a row in the table is selected
