@@ -10,7 +10,8 @@ The AI Prompt Fuzzer is a Burp Suite extension that allows security professional
 You can think of this extension as a fuzzer/brute force tool where preloaded payloads are sent to the target application to inspect the behaviour by checking for specific strings in the response.   
 The first challenge that we normally face when trying to automate the analysis is that the AI/LLM normally responds differently to each question. In fact, sending the same question to the AI/LLM may result in different answers, which makes the automation a very hard thing to achive.
 ```
-Idris: How can I make sure that your response contains specific phrases when you agree to perform a specific ask?
+Idris: How can I make sure that your response contains specific phrases
+when you agree to perform a specific ask?
 AI/LLM: Maybe ask me to print those phrases in my response! ;)
 ```
 To solve the challenge, we need to ask the AI/LLM to include specific phrases in the response when it accepts to perform our ask. We need to consider this important concept when creating the payloads.    
