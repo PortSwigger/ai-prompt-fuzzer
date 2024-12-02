@@ -107,7 +107,7 @@ The Potential Break column is an important feature for highlighting anomalous re
 ##### Customizing Detection Criteria:
 * You can configure what qualifies as a "potential break" by adjusting the keywords (aka `<validate>` in the payloads XML file) in the payloads file, please check the Payloads and Formatting section for more information.
 * The tool highlights rows in yellow where a potential break is detected, making it easier to spot unusual behaviour.
-* In version 1.0.1, you may need to adjust the value of the "Minimum count of the validate string for potential break" based on the responses from the application. If the application reply back the user's input in the response, we may need to set the value to 2.
+* In version 1.0.1, you may need to adjust the value of the "Minimum count of the validate string for potential break" based on the responses from the application. If the application includes the user's input in the response, we may need to set the value to 2.
 #### Manual Analysis:
 * Review each highlighted response to evaluate potential risks or issues manually.
 * It is recommended to review all results (including those with False Potential Break) to understand the behaviour of the utilized AI Model.
