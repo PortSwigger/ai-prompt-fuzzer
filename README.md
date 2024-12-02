@@ -90,7 +90,7 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
 
 ### Running the Fuzzer
 #### Start Fuzzing:
-* Load the payloads using local payloads file. You can download the GeneralPayloads.xml file from this repo.
+* Load the payloads using local payloads file.
 * Make sure to adjust the value for the "Minimum count of the validate string for potential break" based on the response type. If the response includes the user's input, set the value to 2; otherwise, keep it as 1.
 * click the Send Payloads Button to initiate requests.
 * The tool will send a separate request for each payload to the specified API endpoint sequentially and log the responses in the Log Table.
