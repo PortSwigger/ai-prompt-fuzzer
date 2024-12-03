@@ -115,7 +115,7 @@ The Potential Break column is an important feature for highlighting anomalous re
 * It is recommended to send the payloads multiple times and review the results as the AI/LLM may change their behaviour by replicating the requests.
 
 Here is a tutorial video (click to watch in Youtube):
-[![AI Prompt Fuzzer Tutorial](https://img.youtube.com/vi/rFSmsOBUZ2g/maxresdefault.jpg)](https://www.youtube.com/watch?v=rFSmsOBUZ2g)
+[![AI Prompt Fuzzer Tutorial](https://img.youtube.com/vi/_gzbgGL1XJs/maxresdefault.jpg)](https://www.youtube.com/watch?v=_gzbgGL1XJs)
 
 ## Payloads and Formatting
 The format for the payloads file is simple and straight forward, all we need is to make sure it looks like the following:
