@@ -83,7 +83,7 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
 * Although you can copy and paste requests to the `Request to be sent` panel, It is recommended to use one of Burp tools (Target, Proxy, Repeater, Intruder ... etc.) to send a request to make sure that the request to be send is a valid request.
 * You can also manually add the placeholder text by writing the following text: [PLACEHOLDER].
 * For GET based requests, it is recommended to use URL encoding to avoid errors.
-* Load payloads from a local file to start testing. A sample payloads file has already been included within the home folder of this project ([GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml)).
+* Load payloads from a local file to start testing. A sample payloads file has already been included within the home folder of this project ([GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml)). From v1.1.0, it is possible to click on Send Payloads directly, the tool will try to load the default payloads if no custom payloads were loaded.  
 
 <kbd><a href="#"><img src="media/Send_a_Request_to_AI_Prompt_Fuzzer.jpg" alt="Image showing how to send a Request to AI Prompt Fuzzer" /></a></kbd>
 
