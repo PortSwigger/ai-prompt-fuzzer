@@ -1,5 +1,7 @@
 import burp.api.montoya.BurpExtension;
 import burp.api.montoya.MontoyaApi;
+import burp.api.montoya.core.ByteArray;
+import burp.api.montoya.core.Range;
 import burp.api.montoya.http.message.HttpRequestResponse;
 import burp.api.montoya.http.message.requests.HttpRequest;
 import burp.api.montoya.http.message.responses.HttpResponse;
@@ -10,7 +12,7 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.SwingWorker;
 import java.awt.*;
-import java.net.URLDecoder;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -18,8 +20,6 @@ import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.net.URI;
 import java.awt.event.*;
 
@@ -31,6 +31,9 @@ import javax.swing.text.DocumentFilter;
 import javax.swing.text.PlainDocument;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+
+import burp.api.montoya.ui.editor.HttpRequestEditor;
+import burp.api.montoya.ui.editor.HttpResponseEditor;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Element;
@@ -40,29 +43,34 @@ import java.io.File;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 
+import static burp.api.montoya.core.ByteArray.byteArray;
+import static burp.api.montoya.http.message.requests.HttpRequest.httpRequest;
+
 public class AI_Prompt_Fuzzer implements BurpExtension {
 
     private MontoyaApi api;
     private final String placeholder = "[PLACEHOLDER]";
-    private static JTextArea requestArea;
+    private final String currentVersion = "v1.1.0";
+    private static HttpRequestEditor httpRequestEditor;
     private static HttpService currentHttpService;
     private static final int THREAD_POOL_SIZE = 10; // Number of threads in the pool
     // Components for the splitpane
     private JTable logTable;
     private DefaultTableModel logTableModel;
-    private JTextArea requestResponseViewer;
+    private static HttpRequestEditor httpRequestViewer;
+    private static HttpResponseEditor httpResponseViewer;
     // Payload list
     private NodeList payloadList;
     // Declare buttonPanel
     private JPanel buttonPanel;
-    // SendPayloads button to be accessed by other methods
-    JButton sendRequestsButton = new JButton("Send Payloads");
     // URL encoding option
     private final JCheckBox urlEncodePayloads = new JCheckBox("URLEncode payloads");
     // escape (") and (\) option
     JCheckBox escapeSpecialChars = new JCheckBox("Escape (\") and (\\) in payloads");
     // Define minValidateTextBox
     JTextField minValidateTextBox = new JTextField(2);
+    // Define the executor service for the threads
+    private ExecutorService executor;
 
     @Override
     public void initialize(MontoyaApi api) {
@@ -71,17 +79,24 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         api.userInterface().registerContextMenuItemsProvider(new MyContextMenuItemsProvider(api));
         SwingUtilities.invokeLater(this::createUI);
         api.logging().logToOutput("[i]: Loaded Successfully");
+
+        // Register the unloading handler for the executor service
+        api.extension().registerUnloadingHandler(() -> {
+            // Shut down the thread pool when the extension is unloaded.
+            if (executor != null && !executor.isShutdown()) {
+                executor.shutdownNow();
+            }
+        });
     }
 
     private void createUI() {
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        // Request text area setup with title
-        requestArea = new JTextArea(10, 50);
-        JScrollPane requestScrollPane = new JScrollPane(requestArea);
+        // Using httpRequestEditor
+        httpRequestEditor = api.userInterface().createHttpRequestEditor();
         JPanel requestPanel = new JPanel(new BorderLayout());
         requestPanel.setBorder(BorderFactory.createTitledBorder("Request to be sent (remember to add a PlaceHolder)"));
-        requestPanel.add(requestScrollPane, BorderLayout.CENTER);
+        requestPanel.add(httpRequestEditor.uiComponent(), BorderLayout.CENTER);
         mainPanel.add(requestPanel, BorderLayout.WEST);
 
         // Log Table setup with title
@@ -105,13 +120,25 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         logPanel.setBorder(BorderFactory.createTitledBorder("Requests and Responses Log"));
         logPanel.add(logScrollPane, BorderLayout.CENTER);
 
-        // Request/Response Viewer with title
-        requestResponseViewer = new JTextArea(10, 50);
-        requestResponseViewer.setEditable(false);
-        JScrollPane viewerScrollPane = new JScrollPane(requestResponseViewer);
+        // RequestResponse Area
+        httpRequestViewer = api.userInterface().createHttpRequestEditor();
+        httpResponseViewer = api.userInterface().createHttpResponseEditor();
+
         JPanel viewerPanel = new JPanel(new BorderLayout());
         viewerPanel.setBorder(BorderFactory.createTitledBorder("Request and Response Viewer"));
-        viewerPanel.add(viewerScrollPane, BorderLayout.CENTER);
+
+        // Create a JSplitPane for requestViewer & responseViewer
+        JSplitPane requestResponseJSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, httpRequestViewer.uiComponent(),
+                httpResponseViewer.uiComponent());
+        // divide the space between requestViewer & responseViewer
+        requestResponseJSplit.addComponentListener(new ComponentAdapter() {
+            @Override
+            public void componentResized(ComponentEvent e) {
+                requestResponseJSplit.setDividerLocation(0.5);
+            }
+        });
+
+        viewerPanel.add(requestResponseJSplit, BorderLayout.CENTER);
 
         // Create a JSplitPane for log table and request/response viewer
         JSplitPane verticalSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, logPanel, viewerPanel);
@@ -125,7 +152,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                 int burpWindowWidth = mainPanel.getWidth();
                 horizontalSplitPane.setDividerLocation(burpWindowWidth * 40 / 100);
                 int burpWindowHeight = mainPanel.getHeight();
-                verticalSplitPane.setDividerLocation(burpWindowHeight * 40 / 100);
+                verticalSplitPane.setDividerLocation(burpWindowHeight * 30 / 100);
             }
         });
 
@@ -136,12 +163,18 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         JButton loadPayloadButton = new JButton("Load Payloads");
-        loadPayloadButton.addActionListener(e -> loadPayloads());
+        loadPayloadButton.addActionListener(e -> loadPayloads("Custom"));
         buttonPanel.add(loadPayloadButton);
 
         // Adds sendRequests button as disabled
+        JButton sendRequestsButton = new JButton("Send Payloads");
         sendRequestsButton.addActionListener(e -> sendRequests());
         buttonPanel.add(sendRequestsButton);
+
+        // view Payloads
+        JButton viewPayloadsButton = new JButton("View Payloads");
+        viewPayloadsButton.addActionListener(e -> showLoadedPayloads());
+        buttonPanel.add(viewPayloadsButton);
 
         JButton clearLogButton = new JButton("Clear Log");
         clearLogButton.addActionListener(e -> clearLog());
@@ -153,12 +186,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
 
         // Add the "About" button to the button panel
         JButton aboutButton = new JButton("About");
-        aboutButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                showAboutDialog();
-            }
-        });
+        aboutButton.addActionListener(e -> showAboutDialog());
         buttonPanel.add(aboutButton);
 
         // JPanel for the payload settings
@@ -244,52 +272,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         });
     }
 
-    // Method to create right-click menus for requestArea and requestResponseViewer
+    // Method to create right-click menus for the log table
     private void addRightClickMenus() {
-        // Popup menu for requestArea with Send to Repeater, Send to Intruder, Copy, Cut, and Paste
-        JPopupMenu requestAreaPopupMenu = new JPopupMenu();
-
-        // Copy option
-        JMenuItem copyItemRequestArea = new JMenuItem("Copy");
-        copyItemRequestArea.addActionListener(e -> requestArea.copy());
-        requestAreaPopupMenu.add(copyItemRequestArea);
-
-        // Cut option
-        JMenuItem cutItemRequestArea = new JMenuItem("Cut");
-        cutItemRequestArea.addActionListener(e -> requestArea.cut());
-        requestAreaPopupMenu.add(cutItemRequestArea);
-
-        // Paste option
-        JMenuItem pasteItemRequestArea = new JMenuItem("Paste");
-        pasteItemRequestArea.addActionListener(e -> requestArea.paste());
-        requestAreaPopupMenu.add(pasteItemRequestArea);
-
-        // Attach requestAreaPopupMenu to requestArea only
-        requestArea.setComponentPopupMenu(requestAreaPopupMenu);
-
-        // JPopup menu for requestResponseViewer with Copy, Send to Repeater, and Send to Intruder only
-        JPopupMenu viewerPopupMenu = new JPopupMenu();
-
-        // Copy option
-        JMenuItem copyItemViewer = new JMenuItem("Copy");
-        copyItemViewer.addActionListener(e -> requestResponseViewer.copy());
-        viewerPopupMenu.add(copyItemViewer);
-
-        // Separator
-        viewerPopupMenu.addSeparator();
-
-        // Send to Repeater and Send to Intruder for requestResponseViewer
-        JMenuItem sendToRepeaterItemViewer = new JMenuItem("Send to Repeater");
-        sendToRepeaterItemViewer.addActionListener(e -> sendToRepeater());
-        viewerPopupMenu.add(sendToRepeaterItemViewer);
-
-        JMenuItem sendToIntruderItemViewer = new JMenuItem("Send to Intruder");
-        sendToIntruderItemViewer.addActionListener(e -> sendToIntruder());
-        viewerPopupMenu.add(sendToIntruderItemViewer);
-
-        // Attach viewerPopupMenu to requestResponseViewer only
-        requestResponseViewer.setComponentPopupMenu(viewerPopupMenu);
-
         // Popup menu for logTable with only Send to Repeater and Send to Intruder
         JPopupMenu logTablePopupMenu = new JPopupMenu();
 
@@ -354,25 +338,39 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         logTableModel.setRowCount(0);
 
         // Clear the request/response viewer
-        requestResponseViewer.setText("");
+        httpRequestViewer.setRequest(HttpRequest.httpRequest(byteArray()));
+        httpResponseViewer.setResponse(HttpResponse.httpResponse());
     }
 
     // Method to insert or replace with [PLACEHOLDER] in requestArea
     private void insertPlaceholder() {
-        String placeholder = "[PLACEHOLDER]";
-        int start = requestArea.getSelectionStart();
-        int end = requestArea.getSelectionEnd();
-
-        if (start != end) {
-            // If there is highlighted text, replace it with [PLACEHOLDER]
-            requestArea.replaceRange(placeholder, start, end);
-        } else {
-            // Otherwise, insert [PLACEHOLDER] at the cursor position
-            requestArea.insert(placeholder, start);
+        HttpRequest originalRequest = httpRequestEditor.getRequest();
+        ByteArray newRequest;
+        if (httpRequestEditor.selection().isPresent())
+        {
+            ByteArray oldRequest = originalRequest.toByteArray();
+            Range offsets = httpRequestEditor.selection().get().offsets();
+            newRequest = buildNewByteArray(oldRequest, offsets.startIndexInclusive(), offsets.endIndexExclusive());
+        }
+        else
+        {
+            ByteArray oldRequest = originalRequest.toByteArray();
+            int offset = httpRequestEditor.caretPosition();
+            newRequest = buildNewByteArray(oldRequest, offset, offset);
         }
 
-        // Move the cursor to the end of the inserted placeholder
-        requestArea.setCaretPosition(start + placeholder.length());
+        httpRequestEditor.setRequest(httpRequest(originalRequest.httpService(), newRequest));
+    }
+
+    private ByteArray buildNewByteArray(ByteArray content, int initialOffset, int endOffset)
+    {
+        ByteArray prefix = content.subArray(0, initialOffset);
+        ByteArray placeholder = byteArray(this.placeholder);
+        ByteArray suffix = endOffset == content.length()
+                ? byteArray()
+                : content.subArray(endOffset, content.length());
+
+        return prefix.withAppended(placeholder).withAppended(suffix);
     }
 
     // Method to show the "About" dialog
@@ -395,8 +393,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         gbc.anchor = GridBagConstraints.CENTER;
 
         // Label for version and developer information
-        JLabel toolNameLabel = new JLabel("AI Prompt Fuzzer v1.0.0", JLabel.CENTER);
-        toolNameLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
+        JLabel toolNameLabel = new JLabel("AI Prompt Fuzzer " + currentVersion, JLabel.CENTER);
+        toolNameLabel.setFont(new Font("SansSerif", Font.BOLD, 16));
 
         JLabel devNameLabel = new JLabel("Developed by Mohamed Idris", JLabel.CENTER);
         devNameLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -422,27 +420,15 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             }
         });
 
-        // Hyperlink-style label for help and additional information
-        JLabel downloadLinkLabel = new JLabel("Download GeneralPayloads.xml", JLabel.CENTER);
-        downloadLinkLabel.setFont(new Font("SansSerif", Font.BOLD, 14));
-        downloadLinkLabel.setForeground(Color.BLUE.darker());
-        downloadLinkLabel.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        downloadLinkLabel.addMouseListener(new java.awt.event.MouseAdapter() {
-            @Override
-            public void mouseClicked(java.awt.event.MouseEvent evt) {
-                try {
-                    Desktop.getDesktop().browse(new URI("https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml"));
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
-            }
-        });
+        JLabel specialThanksLabel = new JLabel("Special thanks to PortSwigger's Support Team",
+                JLabel.CENTER);
+        devNameLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
 
         // Add the link label to the bottom of the messagePanel
         gbc.gridy++; // Move to the next row for the second label
         messagePanel.add(linkLabel, gbc);
         gbc.gridy++; // Move to the next row for the third label
-        messagePanel.add(downloadLinkLabel, gbc);
+        messagePanel.add(specialThanksLabel, gbc);
 
         // Add messagePanel to the Dialog
         aboutDialog.add(messagePanel, BorderLayout.CENTER);
@@ -452,45 +438,144 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         aboutDialog.setVisible(true);
     }
 
-    // Load payloads from the XML file
-    private void loadPayloads() {
+    // Load payloads from an XML file or load the default payloads
+    private void loadPayloads(String source) {
         try {
-            // Create a file chooser
-            JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setDialogTitle("Select an XML file");
+            // Create a secure DocumentBuilderFactory
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
 
-            // Show the open dialog and check if a file was selected
-            int userSelection = fileChooser.showOpenDialog(null);
+            // Secure against XXE (External Entity Injection)
+            dbFactory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+            dbFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+            dbFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+            dbFactory.setXIncludeAware(false);
+            dbFactory.setExpandEntityReferences(false);
 
-            if (userSelection == JFileChooser.APPROVE_OPTION) {
-                // Get the selected file
-                File xmlFile = fileChooser.getSelectedFile();
-                //System.out.println("Selected file: " + xmlFile.getAbsolutePath());
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc;
 
-                // Initialize the DocumentBuilderFactory
-                DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-                DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-                Document doc = dBuilder.parse(xmlFile);
+            // Check whether to load default payloads
+            if (source.equalsIgnoreCase ("default")) {
+                // Load default payloads from embedded XML file
+                InputStream defaultPayloadStream = getClass().getClassLoader().getResourceAsStream("GeneralPayloads.xml");
+                if (defaultPayloadStream == null) {
+                    JOptionPane.showMessageDialog(null, "Default payload file not found!");
+                    return;
+                }
+                doc = dBuilder.parse(defaultPayloadStream);
+            } else { // Custom
+                // Allow user to choose a file
+                JFileChooser fileChooser = new JFileChooser();
+                fileChooser.setDialogTitle("Select a custom XML file");
 
-                // Normalize XML structure
-                doc.getDocumentElement().normalize();
+                int userSelection = fileChooser.showOpenDialog(null);
 
-                // Get all <payload> elements
-                payloadList = doc.getElementsByTagName("payload");
-                JOptionPane.showMessageDialog(null, "Payloads loaded: " + payloadList.getLength());
-                // Enable Send Requests button
-                sendRequestsButton.setEnabled(true);
-            } else {
-                JOptionPane.showMessageDialog(null, "No file selected.");
+                if (userSelection == JFileChooser.APPROVE_OPTION) {
+                    File xmlFile = fileChooser.getSelectedFile();
+                    doc = dBuilder.parse(xmlFile);
+                } else {
+                    // If no file is selected, confirm whether to load defaults
+                    int userResponse = JOptionPane.showConfirmDialog(
+                            null,
+                            "No file was selected. Do you want to load the default payloads?",
+                            "Load default payloads?",
+                            JOptionPane.YES_NO_OPTION,
+                            JOptionPane.QUESTION_MESSAGE
+                    );
+                    if (userResponse != JOptionPane.YES_OPTION) {
+                        return;
+                    }
+                    // Load embedded default payloads
+                    InputStream defaultPayloadStream = getClass().getClassLoader().getResourceAsStream("GeneralPayloads.xml");
+                    if (defaultPayloadStream == null) {
+                        JOptionPane.showMessageDialog(null, "Default payload file not found!");
+                        return;
+                    }
+                    doc = dBuilder.parse(defaultPayloadStream);
+                }
             }
+
+            // Normalize XML structure
+            doc.getDocumentElement().normalize();
+            payloadList = doc.getElementsByTagName("payload");
+
+            JOptionPane.showMessageDialog(null, "Payloads loaded: " + payloadList.getLength());
+
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(null, "Error loading payloads. Please use valid XML payloads file");
+            JOptionPane.showMessageDialog(null, "Error loading payloads. Please use a valid XML file.");
+        }
+    }
+
+    private void showLoadedPayloads() {
+        // If no payloads found, try to load the default payloads
+        if (payloadList == null || payloadList.getLength() == 0) {
+            int userResponse = JOptionPane.showConfirmDialog(
+                    null,
+                    "No payloads found. Do you want to load the default payloads?",
+                    "Load default payloads?",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+            if (userResponse != JOptionPane.YES_OPTION) {
+                return;
+            }
+            loadPayloads("default");
+        }
+
+        // Create editable table model
+        DefaultTableModel tableModel = new DefaultTableModel(new Object[]{"Inject String", "Validate String"}, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return true; // Allow users to edit cells
+            }
+        };
+
+        // Populate the table with current payload data
+        for (int i = 0; i < payloadList.getLength(); i++) {
+            Element payloadElement = (Element) payloadList.item(i);
+            String injectString = payloadElement.getElementsByTagName("inject").item(0).getTextContent().trim();
+            String validateString = payloadElement.getElementsByTagName("validate").item(0).getTextContent().trim();
+
+            tableModel.addRow(new Object[]{injectString, validateString});
+        }
+
+        // Create JTable with the editable model
+        JTable payloadTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(payloadTable);
+        scrollPane.setPreferredSize(new Dimension(500, 300)); // Set preferred size
+
+        // Show table in a dialog with "Save" and "Cancel" buttons
+        int option = JOptionPane.showConfirmDialog(null, scrollPane, "Double click to edit",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (option == JOptionPane.OK_OPTION) {
+            // Update payloadList with the edited values
+            for (int i = 0; i < payloadList.getLength(); i++) {
+                Element payloadElement = (Element) payloadList.item(i);
+                payloadElement.getElementsByTagName("inject").item(0).setTextContent(tableModel.getValueAt(i, 0).toString());
+                payloadElement.getElementsByTagName("validate").item(0).setTextContent(tableModel.getValueAt(i, 1).toString());
+            }
+            JOptionPane.showMessageDialog(null, "Payloads updated successfully.");
         }
     }
 
     private void sendRequests() {
-        if (!requestArea.getText().isEmpty() && payloadList != null && payloadList.getLength() > 0) {
+        // If no payloads found, try to load the default payloads
+        if (payloadList == null || payloadList.getLength() == 0) {
+            int userResponse = JOptionPane.showConfirmDialog(
+                    null,
+                    "No payloads found. Do you want to load the default payloads?",
+                    "Load default payloads?",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE
+            );
+            if (userResponse != JOptionPane.YES_OPTION) {
+                return;
+            }
+            loadPayloads("default");
+        }
+        if (!httpRequestEditor.getRequest().toString().isEmpty() && payloadList != null && payloadList.getLength() > 0) {
             // Check if the current request is valid
             if (currentHttpService == null || currentHttpService.toString().isEmpty()){
                 JOptionPane.showMessageDialog(null, "Invalid request, please send a valid request from any other Burp tool.");
@@ -498,7 +583,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             }
 
             int totalPayloads = payloadList.getLength();
-            String originalRequestStr = requestArea.getText();
+            String originalRequestStr = httpRequestEditor.getRequest().toString();
 
             // Check if user forgets to add a Placeholder
             if (!originalRequestStr.contains(placeholder)){
@@ -516,7 +601,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             }
 
             // Check if user forgets to use URL encoding for a GET request
-            HttpRequest thisRequest = HttpRequest.httpRequest(currentHttpService, originalRequestStr);
+            HttpRequest thisRequest = httpRequest(currentHttpService, originalRequestStr);
             if (Objects.equals(thisRequest.method(), "GET") && !urlEncodePayloads.isSelected()){
                 int userResponse = JOptionPane.showConfirmDialog(
                         null,
@@ -538,9 +623,6 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             buttonPanel.add(progressBar); // Add progress bar at the top of the button panel
             buttonPanel.revalidate();
             buttonPanel.repaint();
-
-            // Disable Send Requests button
-            sendRequestsButton.setEnabled(false);
 
             // Create a SwingWorker for background processing
             SwingWorker<Void, Integer> worker = new SwingWorker<>() {
@@ -577,7 +659,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
 
                         try {
                             // Remove HTTP headers that cause issues with the replay request
-                            HttpRequest modifiedRequest = HttpRequest.httpRequest(currentHttpService, modifiedRequestStr)
+                            HttpRequest modifiedRequest = httpRequest(currentHttpService, modifiedRequestStr)
                                     .withRemovedHeader("Content-Length")
                                     .withRemovedHeader("If-Modified-Since")
                                     .withRemovedHeader("If-None-Match");
@@ -588,7 +670,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                                         HttpResponse response = api.http().sendRequest(modifiedRequest).response();
 
                                         // Check if the response contains a valid potential
-                                        boolean isValid = isPotential(inject,validate,response.bodyToString());
+                                        boolean isValid = isPotential(validate,response.bodyToString());
 
                                         logRequestResponse(modifiedRequest, response, isValid);
 
@@ -604,21 +686,15 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                                     } catch (Exception e) {
                                         //JOptionPane.showMessageDialog(null, "Error processing request: " + e.getMessage());
                                         api.logging().logToOutput("[E]: Error processing request: " + e.getMessage());
-                                        // Enable Send Requests button
-                                        sendRequestsButton.setEnabled(true);
                                     }
                                 };
                                 executor.submit(requestTask);
                             } else {
                                 JOptionPane.showMessageDialog(null, "Selected Request is invalid.");
-                                // Enable Send Requests button
-                                sendRequestsButton.setEnabled(true);
                                 return null;
                             }
                         } catch (Exception e) {
                             JOptionPane.showMessageDialog(null, "Error while building the request: " + e.getMessage());
-                            // Enable Send Requests button
-                            sendRequestsButton.setEnabled(true);
                             return null;
                         }
                     }
@@ -626,8 +702,6 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                     // Shutdown the executor gracefully
                     executor.shutdown();
                     executor.awaitTermination(1, TimeUnit.MINUTES);
-                    // Enable Send Requests button
-                    sendRequestsButton.setEnabled(true);
                     return null;
                 }
 
@@ -649,8 +723,6 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         }
         else {
             JOptionPane.showMessageDialog(null, "No payloads loaded or request selected.");
-            // Enable Send Requests button
-            sendRequestsButton.setEnabled(true);
         }
     }
 
@@ -674,33 +746,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         });
     }
 
-    // Normalize strings by removing special characters and Unicode representations
-    private static String normalizeString(String input) {
-        // URLDecode two times to avoid issues with URLEncoded responses
-        String normalizedString = URLDecoder.decode(input, StandardCharsets.UTF_8);
-        normalizedString = URLDecoder.decode(normalizedString, StandardCharsets.UTF_8);
-
-        // Remove special characters, % is not included to avoid messing URLEncoded strings
-        normalizedString = normalizedString.replaceAll("[\\\\'\"@\\[\\]{}?!/<>^&$()|~#]", "");
-
-        return normalizedString;
-    }
-
     // isPotential logic. Try first to remove replicated user prompt then check for validate string
-    private boolean isPotential(String inject, String validate, String responseBody){
-        /*
-        // Logic for identifying if the request is a valid potential
-        // Normalize strings by removing special characters
-        String normalizedInject = normalizeString(inject);
-        String normalizedValidate = normalizeString(validate);
-        String normalizedResponseBody = normalizeString(responseBody);
-        // Remove the entire inject string from the response before checking
-        String cleanedResponseBody = normalizedResponseBody.replaceAll(normalizedInject, "");
-
-        // Check if the cleaned response body contains the normalized validate string to be a potential break
-        return cleanedResponseBody.contains(normalizedValidate);
-         */
-
+    private boolean isPotential(String validate, String responseBody){
         // check if the count of the validate string is more than or equal to user's value
         //api.logging().logToOutput("[i]: Validate occurrences: " + (responseBody.split(validate, -1).length - 1));
         return responseBody.split(validate, -1).length - 1 >= Integer.parseInt(minValidateTextBox.getText());
@@ -714,57 +761,83 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             int modelRow = logTable.convertRowIndexToModel(selectedRow);
             HttpRequest request = (HttpRequest) logTableModel.getValueAt(modelRow, 5);
             HttpResponse response = (HttpResponse) logTableModel.getValueAt(modelRow, 6);
-            requestResponseViewer.setText("Request:\n" + request.toString() + "\n\nResponse:\n" + response.toString());
+            //requestResponseViewer.setText("Request:\n" + request.toString() + "\n\nResponse:\n" + response.toString());
+            httpRequestViewer.setRequest(request);
+            httpResponseViewer.setResponse(response);
             // Scroll to the top of the requestResponseViewer
-            requestResponseViewer.setCaretPosition(0);
+            //requestResponseViewer.setCaretPosition(0);
+
         }
     }
 
     public static void setCurrentRequestResponse(HttpRequestResponse parRequestResponse) {
         if (parRequestResponse != null) {
             currentHttpService = parRequestResponse.httpService();
-            requestArea.setText(parRequestResponse.request().toString());
+            //requestArea.setText(parRequestResponse.request().toString());
+            httpRequestEditor.setRequest(parRequestResponse.request());
         }
     }
 }
 
 class CustomRenderer extends DefaultTableCellRenderer {
-    private static final Color HIGHLIGHT_COLOR = Color.YELLOW;
-    private static final Color EVEN_ROW_COLOR = new Color(240, 240, 240); // Light gray for even rows
-    private static final Color ODD_ROW_COLOR = Color.WHITE;               // White for odd rows
+    // Burp-style yellow
+    private static final Color HIGHLIGHT_COLOR = new Color(255, 204, 0);
 
     @Override
     public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
         // Call parent to get default rendering
         Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
+        // Get Burp's theme colors dynamically
+        Color defaultBackground = UIManager.getColor("Table.background");
+        Color defaultForeground = UIManager.getColor("Table.foreground");
+        Color selectionBackground = UIManager.getColor("Table.selectionBackground");
+        Color selectionForeground = UIManager.getColor("Table.selectionForeground");
+        Color gridColor = UIManager.getColor("Table.gridColor");
+
+        // Ensure fallback colors in case UIManager returns null
+        if (defaultBackground == null) defaultBackground = Color.WHITE;
+        if (defaultForeground == null) defaultForeground = Color.BLACK;
+        if (selectionBackground == null) selectionBackground = new Color(51, 153, 255);
+        if (selectionForeground == null) selectionForeground = Color.WHITE;
+        if (gridColor == null) gridColor = Color.GRAY;
+
+        // Get alternating row colors based on Burp’s theme
+        Color evenRowColor = blendColor(defaultBackground, gridColor, 0.05); // Slightly tinted background
+        Color oddRowColor = defaultBackground; // Default table background
+
         // Use view row index for consistent coloring after sorting
         int viewRow = table.convertRowIndexToModel(row);
 
-        // Get the isValid flag from the model, at the view's row index
-        String isValid = (String) table.getModel().getValueAt(viewRow, 7); // Column index 7 for "Potential Break" status
+        // Get the "Potential Break" flag from column index 7
+        String isValid = (String) table.getModel().getValueAt(viewRow, 7);
 
         if (isSelected) {
-            // Use selection colors if the cell is selected
-            c.setBackground(table.getSelectionBackground());
-            c.setForeground(table.getSelectionForeground());
+            c.setBackground(selectionBackground);
+            c.setForeground(selectionForeground);
         } else if ("TRUE".equals(isValid)) {
             // Highlight row if "Potential Break" is marked TRUE
             c.setBackground(HIGHLIGHT_COLOR);
             c.setForeground(Color.BLACK);
         } else {
-            // Apply banding for non-highlighted rows
-            if (row % 2 == 0) {
-                c.setBackground(EVEN_ROW_COLOR);  // Light gray for even rows
-            } else {
-                c.setBackground(ODD_ROW_COLOR);   // White for odd rows
-            }
-            c.setForeground(Color.BLACK);  // Default text color for unselected cells
+            // Apply banded row coloring using Burp's theme colors
+            c.setBackground(row % 2 == 0 ? evenRowColor : oddRowColor);
+            c.setForeground(defaultForeground);
         }
 
-        // Ensure the renderer is opaque to show background color
+        // Ensure proper rendering
         ((JComponent) c).setOpaque(true);
 
         return c;
+    }
+
+    /**
+     * Blend two colors with a given ratio.
+     */
+    private Color blendColor(Color color1, Color color2, double ratio) {
+        int r = (int) ((color1.getRed() * (1 - ratio)) + (color2.getRed() * ratio));
+        int g = (int) ((color1.getGreen() * (1 - ratio)) + (color2.getGreen() * ratio));
+        int b = (int) ((color1.getBlue() * (1 - ratio)) + (color2.getBlue() * ratio));
+        return new Color(r, g, b);
     }
 }

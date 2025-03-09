@@ -20,22 +20,21 @@ public class MyContextMenuItemsProvider implements ContextMenuItemsProvider
     }
 
     @Override
-    public List<Component> provideMenuItems(ContextMenuEvent event)
-    {
-        if (event.isFromTool(ToolType.PROXY, ToolType.TARGET, ToolType.LOGGER, ToolType.REPEATER, ToolType.INTRUDER))
-        {
+    public List<Component> provideMenuItems(ContextMenuEvent event) {
+        if (event.isFromTool(ToolType.PROXY, ToolType.TARGET, ToolType.LOGGER, ToolType.REPEATER, ToolType.INTRUDER)) {
             List<Component> menuItemList = new ArrayList<>();
 
             JMenuItem retrieveRequestItem = new JMenuItem("Send request");
-            //JMenuItem retrieveResponseItem = new JMenuItem("Print response");
+            retrieveRequestItem.addActionListener(l -> {
+                HttpRequestResponse requestResponse = event.messageEditorRequestResponse().isPresent()
+                        ? event.messageEditorRequestResponse().get().requestResponse()
+                        : event.selectedRequestResponses().get(0);
 
-            HttpRequestResponse requestResponse = event.messageEditorRequestResponse().isPresent() ? event.messageEditorRequestResponse().get().requestResponse() : event.selectedRequestResponses().get(0);
+                api.logging().logToOutput("Request is:\r\n" + requestResponse.request().toString());
+                AI_Prompt_Fuzzer.setCurrentRequestResponse(requestResponse);
+            });
 
-            retrieveRequestItem.addActionListener(l -> api.logging().logToOutput("Request is:\r\n" + requestResponse.request().toString()));
-            retrieveRequestItem.addActionListener(l -> AI_Prompt_Fuzzer.setCurrentRequestResponse(requestResponse));
-            //AI_Prompt_Fuzzer.setCurrentRequestResponse(requestResponse);
             menuItemList.add(retrieveRequestItem);
-
             return menuItemList;
         }
 
