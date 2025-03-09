@@ -8,7 +8,7 @@ The AI Prompt Fuzzer is a Burp Suite extension that empowers security profession
 
 ## How it works
 You can think of this extension as a fuzzer/brute force tool where preloaded payloads are sent to the target application to inspect the behaviour by checking for specific strings in the response.   
-The first challenge that we normally face when trying to automate the analysis is that the AI/LLM normally responds differently to each question. In fact, sending the same question to the AI/LLM may result in different answers, which makes the automation a very hard thing to achive.
+The first challenge that we normally face when trying to automate the analysis is that the AI/LLM normally responds differently to each question. In fact, sending the same question to the AI/LLM may result in different answers, which makes the automation a very hard thing to achieve.
 ```
 Idris: How can I make sure that your response contains specific phrases
 when you agree to perform a specific ask?
@@ -51,7 +51,7 @@ After the build completes, the compiled JAR file (AI_Prompt_Fuzzer.jar) will be 
      - Browse to select the AI_Prompt_Fuzzer.jar file you just created.
 5. Load the Extension: Click Next, and Burp Suite should load the extension. You should see a new tab labelled AI Prompt Fuzzer in the Burp Suite interface.  
 
-Here is quick video (click to watch in Youtube):
+Here is quick video (click to watch in YouTube):
 [![How to add AI Prompt Fuzzer to Burp](https://img.youtube.com/vi/Fnu_8vW9rmc/maxresdefault.jpg)](https://www.youtube.com/watch?v=Fnu_8vW9rmc)
 
 ## Usage Instructions
@@ -69,15 +69,15 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
   - Length: The size/length of the response.
   - Potential Break: Indicator if the response triggers a potential anomaly or predefined condition. For instance, when TRUE, it indicates that the response matches the expected answer for the specific payload sent in the request.
 * **Request and Response Viewer**: A text area that shows the full content of the selected request and response in the log table. Here, you can verify and check the payload sent to the server and the response received.
-* **Load Payloads Button**: Allows you to upload a payload file. Payloads should be stored in an XML file, with specific format (check the attached [GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml) or review the Payloads and Formatting section). A sample payloads file has already been included within the home folder of this project ([GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml)). From v1.1.0, the default payloads (GeneralPayloads.xml) has been included within the extenion and can be loaded by clicking on Load Payloads, then click Cancel in the dialog box.  
+* **Load Payloads Button**: Allows you to upload a payload file. Payloads should be stored in an XML file, with specific format (check the attached [GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml) or review the Payloads and Formatting section). A sample payloads file has already been included within the home folder of this project ([GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml)). From v1.1.0, the default payloads (GeneralPayloads.xml) has been included within the extension and can be loaded by clicking on Load Payloads, then click Cancel in the dialog box.  
 * **Send Payloads Button**: After loading the payload file and inserting a placeholder, this button sends request after replacing the placeholder with the payloads to the target applications and display the results in the Log table. From v1.1.0, if no payloads were loaded, the tool will try to load the default payloads - no need to download the default payloads as they have been added to the extension.  
-* **View Payloads Button**: From v1.1.0, this button can be used to view and edit the loaded payloads. In order to edit, double click on the required payload, perform your modification, and click on Ok. If no payloads were added the tool will try to load the defaul payloads.  
+* **View Payloads Button**: From v1.1.0, this button can be used to view and edit the loaded payloads. In order to edit, double click on the required payload, perform your modification, and click on Ok. If no payloads were added the tool will try to load the default payloads.  
 * **Clear Log Button**: Clear the Requests and Responses Log table.
 * **Insert Placeholder Button**: Highlight the text you want to replace or add the placeholder to the current cursor position in the Request to be sent.
 * **About Button**: Display the version of the application, the developer's name, and a link to the GitHub page of the tool.
 * **Minimum count of the validate string for potential break**: This value is important as it is used to decide whether the response from the AI is a potential break or not. We expect a potential break response to include at least one occurrence of the validate string. However, some applications reply back the user's prompt in the response. In this case, we need to adjust the minimum count of the validate string to be at least 2. Otherwise, all responses will be flagged as potential breaks since they include the original payload, which include the validate string. Version 1.0.0 does not include this option as it used to remove user's payload/input before deciding whether the response is a potential break or not.  
-* **URLEncode payloads**: Check this box when you need to encode payloads using URL encoding before sending to the target application. This is crucial in some situations such as sending a payloads as a GET request where the parameter is sent over the URL. Another interesting situation is when the target application fails to understand special characters used by different lanaguage other than English. For instance, sending a Spanish payload that involves some special characters may result in an invalid response or analysis. This may solved by encoding the payloads using URL encoding.
-* **Escape (") and (\) in payloads**: Check this box to escape the special characters " and \ in the payloads to avoid errors with some apps (e.g. JSON based requests). The two chracters will be escaped within the payloads before sending to the target application. Escaped characters will look like the following: \\" and \\\\.
+* **URLEncode payloads**: Check this box when you need to encode payloads using URL encoding before sending to the target application. This is crucial in some situations such as sending a payloads as a GET request where the parameter is sent over the URL. Another interesting situation is when the target application fails to understand special characters used by different language other than English. For instance, sending a Spanish payload that involves some special characters may result in an invalid response or analysis. This may solved by encoding the payloads using URL encoding.
+* **Escape (") and (\) in payloads**: Check this box to escape the special characters " and \ in the payloads to avoid errors with some apps (e.g. JSON based requests). The two characters will be escaped within the payloads before sending to the target application. Escaped characters will look like the following: \\" and \\\\.
 ### Configuring the Request to be sent
 * Before you start testing, you need to add the request to be sent to the `Request to be sent` panel and add a placeholder to be replaced with the loaded payloads to be tested. You can send requests to this panel from Burp Target, Proxy, Repeater, Intruder ... etc. by using the Right click menu -> Extensions -> AI Prompt Fuzzer -> Send Request.
 * Although you can copy and paste requests to the `Request to be sent` panel, It is recommended to use one of Burp tools (Target, Proxy, Repeater, Intruder ... etc.) to send a request to make sure that the request to be send is a valid request.
@@ -115,7 +115,7 @@ The Potential Break column is an important feature for highlighting anomalous re
 * Document findings and rerun tests with modified payloads if needed to further investigate anomalies.
 * It is recommended to send the payloads multiple times and review the results as the AI/LLM may change their behaviour by replicating the requests.
 
-Here is a tutorial video (click to watch in Youtube):
+Here is a tutorial video (click to watch in YouTube):
 [![AI Prompt Fuzzer Tutorial](https://img.youtube.com/vi/_gzbgGL1XJs/maxresdefault.jpg)](https://www.youtube.com/watch?v=_gzbgGL1XJs)
 
 ## Payloads and Formatting
