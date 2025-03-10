@@ -32,6 +32,7 @@ import javax.swing.text.PlainDocument;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import burp.api.montoya.ui.editor.EditorOptions;
 import burp.api.montoya.ui.editor.HttpRequestEditor;
 import burp.api.montoya.ui.editor.HttpResponseEditor;
 import org.w3c.dom.Document;
@@ -121,8 +122,8 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         logPanel.add(logScrollPane, BorderLayout.CENTER);
 
         // RequestResponse Area
-        httpRequestViewer = api.userInterface().createHttpRequestEditor();
-        httpResponseViewer = api.userInterface().createHttpResponseEditor();
+        httpRequestViewer = api.userInterface().createHttpRequestEditor(EditorOptions.READ_ONLY);
+        httpResponseViewer = api.userInterface().createHttpResponseEditor(EditorOptions.READ_ONLY);
 
         JPanel viewerPanel = new JPanel(new BorderLayout());
         viewerPanel.setBorder(BorderFactory.createTitledBorder("Request and Response Viewer"));
@@ -130,6 +131,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         // Create a JSplitPane for requestViewer & responseViewer
         JSplitPane requestResponseJSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, httpRequestViewer.uiComponent(),
                 httpResponseViewer.uiComponent());
+        httpRequestViewer.uiComponent().setEnabled(false);
         // divide the space between requestViewer & responseViewer
         requestResponseJSplit.addComponentListener(new ComponentAdapter() {
             @Override
