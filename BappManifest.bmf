@@ -1,0 +1,13 @@
+Uuid: c0cf37e8b711403f82d9832a56d1a511
+ExtensionType: 1
+Name: AI Prompt Fuzzer
+RepoName: ai-prompt-fuzzer
+ScreenVersion: 1.1.0
+SerialVersion: 1
+MinPlatformVersion: 0
+ProOnly: False
+Author: moha99sa
+ShortDescription: This Burp extension automates the fuzzing/brute force testing of AI-based prompts, enabling security professionals to identify potential vulnerabilities or unexpected behavior in AI/LLM systems. It allows for the customization of payload and response criteria.
+EntryPoint: artifact.jar
+BuildCommand: ./gradlew jar
+SupportedProducts: Pro, Community
