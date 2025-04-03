@@ -1,0 +1,51 @@
+<p>
+AI Prompt Fuzzer is a Burp Suite extension designed to help security professionals test AI-based applications for prompt injection vulnerabilities. With the rapid rise of large language models (LLMs) in sensitive contexts such as customer support, content generation, and automated decision-making, traditional tools often fall short in detecting LLM-specific security issues. This extension fills that gap by automating prompt fuzzing against AI APIs using customizable payloads, helping identify abnormal or unsafe model behavior.
+</p>
+
+<p>
+The tool sends predefined prompts to the target API and flags responses that contain specified validation strings, indicating a potential vulnerability or misbehavior. It handles challenges unique to LLMs, such as non-deterministic responses, by recommending strategies like asking the model to echo specific phrases when accepting a prompt.
+</p>
+
+<h2>Features</h2>
+<ul>
+  <li>Automated fuzzing of LLM prompts using payloads defined in XML format.</li>
+  <li>Customizable validation strings to identify potential breaks in AI behavior.</li>
+  <li>Request editor with placeholder insertion for dynamic payload injection.</li>
+  <li>Log table showing each request's time, method, URL, status, length, and break status.</li>
+  <li>Detailed request and response viewer for each fuzzed interaction.</li>
+  <li>Built-in payload viewer and editor with support for loading default payloads.</li>
+  <li>Filters and sorting by status, break state, and response size for easy analysis.</li>
+  <li>Option to URL-encode or escape characters in payloads to ensure compatibility with target applications.</li>
+  <li>Detection of response anomalies using adjustable match thresholds (e.g., minimum count of validation string).</li>
+  <li>Integration with other Burp tools using right-click context menu -&gt; Send to Repeater/Intruder.</li>
+</ul>
+
+<h2>Usage</h2>
+<ol>
+  <li>Send a target request to the extension using the right-click menu -&gt; Extensions -&gt; AI Prompt Fuzzer -&gt; Send Request.</li>
+  <li>Insert a placeholder (e.g., <code class="InlineCode">[PLACEHOLDER]</code>) in the desired location of the request where payloads will be injected.</li>
+  <li>Load payloads from a local XML file or rely on the built-in default payloads.</li>
+  <li>Click <strong>Send Payloads</strong> to begin fuzzing. Each payload replaces the placeholder and is sent as an individual request.</li>
+  <li>Use the log table to view and sort the results. Highlighted rows indicate a potential break based on the validate string found in the response.</li>
+  <li>Adjust detection sensitivity using the "Minimum count of the validate string for potential break" option if needed.</li>
+  <li>Send any logged request to Repeater or Intruder for further manual analysis.</li>
+  <li>Customize or review payloads using the <strong>View Payloads</strong> feature. Edits are made directly in the table view.</li>
+</ol>
+
+<p>
+Payloads should be formatted as follows:
+</p>
+
+<pre><code class="Code">&lt;?xml version="1.0" encoding="UTF-8"?&gt;
+&lt;payloads&gt;
+  &lt;payload&gt;
+    &lt;inject&gt;payload string - must ask the AI/LLM to respond with "specific text"&lt;/inject&gt;
+    &lt;validate&gt;specific text&lt;/validate&gt;
+  &lt;/payload&gt;
+&lt;/payloads&gt;
+</code></pre>
+
+<p>
+Ensure any XML special characters in payloads are escaped properly (e.g., ", ', &lt;, &gt;, &amp;).
+</p>
+

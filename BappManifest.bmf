@@ -1,0 +1,13 @@
+Uuid: d3d1f3c9427e453193eb5deb3b6c115a
+ExtensionType: 1
+Name: AI Prompt Fuzzer
+RepoName: ai-prompt-fuzzer
+ScreenVersion: 1.1.0
+SerialVersion: 1
+MinPlatformVersion: 16
+ProOnly: True
+Author: Mohamed Idris
+ShortDescription: Fuzz generative AI/LLM prompts using a list of various payloads.
+EntryPoint: target/AI_Prompt_Fuzzer-1.0-SNAPSHOT.jar
+BuildCommand: mvn package -DskipTests=true -Dmaven.javadoc.skip=true -B
+SupportedProducts: Pro
