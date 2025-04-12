@@ -23,8 +23,9 @@ I believe that the community will be able to come up with more innovated payload
 If the response from the AI/LLM contains "Confirmed, Fuzzer!", it may indicate that the AI/LLM is happy to ignore all the previous instructions and perform whatever we ask for. This is considered as a potential break, as we can start asking for things that the application is unintended to perform.   
 
 ## Compilation Instructions
-You can skip this section and jump to **Installation in Burp Suite**, if you plan to download and use the pre-compiled version (check [Releases](https://github.com/moha99sa/AI_Prompt_Fuzzer/releases) section).   
-If you want to compile your own version, the process is easy and straight forward, just follow the instructions below.
+AI Prompt Fuzzer extension can be installed directly within Burp Suite from the BApp Store.
+You can skip this section and jump to **Installation in Burp Suite**, if you plan to install the extension from the BApp Store or download and use the pre-compiled version (check [Releases](https://github.com/moha99sa/AI_Prompt_Fuzzer/releases) section).   
+If you want to compile and install your own version, the process is easy and straight forward, just follow the instructions below.
 ### Prerequisites
 Ensure you have the following installed:
 * Java Development Kit (JDK): Version 8 or higher.
@@ -42,7 +43,15 @@ mvn clean package
 ```
 After the build completes, the compiled JAR file (AI_Prompt_Fuzzer.jar) will be in the target directory.
 
-## Installation in Burp Suite
+## Installation in Burp Suite  
+### From Burp BApp Store:
+1. Open Burp Suite: Launch your Burp Suite application.
+2. Navigate to the Extensions tab.
+3. Click on BApp Store tab.
+4. Type "AI Prompt Fuzzer" in the search field.
+5. Click on the extension, and finally install.
+6. You should see a new tab labelled AI Prompt Fuzzer in the Burp Suite interface.
+### From a JAR File:
 1. Open Burp Suite: Launch your Burp Suite application.
 2. Navigate to the Extensions tab: In Burp, go to the Extender tab and select Extensions.
 3. Add the Extension:
