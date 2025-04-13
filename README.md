@@ -4,7 +4,7 @@
 The rapid adoption of AI and large language models (LLMs) across various applications has introduced a host of new security challenges, particularly around safeguarding prompt-based interactions. As these models integrate deeply into systems - powering customer support, content generation, and decision-making - they often hold sensitive data and access critical internal functions. However, there’s a significant lack of penetration testing tools designed specifically to identify and mitigate LLM-specific vulnerabilities. This leaves AI-driven systems susceptible to threats like prompt injection, where attackers manipulate prompts to reveal confidential information, bypass security protocols, or even execute unauthorized actions.
 
 ## Description
-The AI Prompt Fuzzer is a Burp Suite extension that empowers security professionals and testers to automatically "fuzz"/brute force an AI-based prompt for potential behavioural and Prompt Injection vulnerabilities. Users can utilize various payloads to test GenAI/LLM based applications for vulnerabilities related to undesire behaviours and Prompt Injection/Jailbreak. The extension integrates seamlessly with Burp Suite, providing a table-based interface where users can review and analyze the requests and responses of the payloads sent to the AI prompt API endpoint, helping identify vulnerabilities, edge cases, or anomalous behaviours in the model's responses. Starting from version 2.0.0, users can take advantage of Burp's AI to help in analyzing and testing applications (Note: Burp's AI capabilities are supported in specific Burp versions).
+The AI Prompt Fuzzer is a Burp Suite extension that empowers security professionals and testers to automatically "fuzz"/brute force an AI-based prompt for potential behavioural and Prompt Injection vulnerabilities. Users can utilize various payloads to test GenAI/LLM based applications for vulnerabilities related to undesired behaviours and Prompt Injection/Jailbreak. The extension integrates seamlessly with Burp Suite, providing a table-based interface where users can review and analyze the requests and responses of the payloads sent to the AI prompt API endpoint, helping identify vulnerabilities, edge cases, or anomalous behaviours in the model's responses. Starting from version 2.0.0, users can take advantage of Burp's AI to help in analyzing and testing applications (Note: Burp's AI capabilities are supported in specific Burp versions).
 
 ## How it works
 You can think of this extension as a fuzzer/brute force tool where preloaded payloads are sent to the target application to inspect the behaviour by checking for specific strings in the response (With AI capabilities starting from v2.0.0, Burp's AI can help verifying and reviewing the response).   
@@ -84,15 +84,16 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
 * **Clear Log Button**: Clear the Requests and Responses Log table.
 * **Insert Placeholder Button**: Highlight the text you want to replace or add the placeholder to the current cursor position in the Request to be sent.
 * **About Button**: Display the version of the application, the developer's name, and a link to the GitHub page of the tool.
-* **Minimum count of the validate string for potential break**: This value is important as it is used to decide whether the response from the AI is a potential break or not. We expect a potential break response to include at least one occurrence of the validate string. However, some applications reply back the user's prompt in the response. In this case, we need to adjust the minimum count of the validate string to be at least 2. Otherwise, all responses will be flagged as potential breaks since they include the original payload, which include the validate string. Version 1.0.0 does not include this option as it used to remove user's payload/input before deciding whether the response is a potential break or not.  
-* **URLEncode payloads**: Check this box when you need to encode payloads using URL encoding before sending to the target application. This is crucial in some situations such as sending a payloads as a GET request where the parameter is sent over the URL. Another interesting situation is when the target application fails to understand special characters used by different language other than English. For instance, sending a Spanish payload that involves some special characters may result in an invalid response or analysis. This may solved by encoding the payloads using URL encoding.
+* **Minimum occurrences of the Keywords for potential break**: This value is important as it is used to decide whether the response from the AI is a potential break or not. We expect a potential break response to include at least one occurrence of the Keywords/validate string. However, some applications reply back the user's prompt in the response. In this case, we need to adjust the minimum count of the Keywords/validate string to be at least 2. Otherwise, all responses will be flagged as potential breaks since they include the original payload, which include the Keywords/validate string. Version 1.0.0 does not include this option as it used to remove user's payload/input before deciding whether the response is a potential break or not.  
+* **URLEncode payloads**: Check this box when you need to encode payloads using URL encoding before sending to the target application. This is crucial in some situations such as sending a payloads as a GET request where the parameter is sent over the URL. Another interesting situation is when the target application fails to understand special characters used by different language other than English. For instance, sending a Spanish payload that involves some special characters may result in an invalid response or analysis. This may be solved by encoding the payloads using URL encoding.
 * **Escape (") and (\) in payloads**: Check this box to escape the special characters " and \ in the payloads to avoid errors with some apps (e.g. JSON based requests). The two characters will be escaped within the payloads before sending to the target application. Escaped characters will look like the following: \\" and \\\\.
+* **Verify responses by AI**: Check this box if you want to review/verify the response by Burp's AI. Notice the new column "Potential Break (AI)" that appears in the table when you enable the AI verification. You need to use Burp Suite version that supports AI. In order to enable AI in the extension, make sure that you enabled the AI in the Extension tab by checking the box that says "Enable AI" - check this ([video](https://www.youtube.com/watch?v=6MSgJhgZm2s)) to see how to enable and use AI. Warning: using Burp's AI to verify responses consumes AI credits.  
 ### Configuring the Request to be sent
 * Before you start testing, you need to add the request to be sent to the `Request to be sent` panel and add a placeholder to be replaced with the loaded payloads to be tested. You can send requests to this panel from Burp Target, Proxy, Repeater, Intruder ... etc. by using the Right click menu -> Extensions -> AI Prompt Fuzzer -> Send Request.
 * Although you can copy and paste requests to the `Request to be sent` panel, It is recommended to use one of Burp tools (Target, Proxy, Repeater, Intruder ... etc.) to send a request to make sure that the request to be send is a valid request.
 * You can also manually add the placeholder text by writing the following text: [PLACEHOLDER].
 * For GET based requests, it is recommended to use URL encoding to avoid errors.
-* Load payloads from a local file to start testing. A sample payloads file has already been included within the home folder of this project ([GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/GeneralPayloads.xml)). From v1.1.0, it is possible to click on Send Payloads directly, the tool will try to load the default payloads if no custom payloads were loaded.  
+* Load payloads from a local file to start testing. From v1.1.0, you can load the default payloads by clicking on Load Payloads then clicking on Cancel or by clicking on View Payloads (the tool will automatically prompt you to load the default payloads). A sample payloads file has already been included within the home folder of this project ([GeneralPayloads.xml](https://github.com/moha99sa/AI_Prompt_Fuzzer/blob/main/src/main/resources/GeneralPayloads.xml)).   
 
 <kbd><a href="#"><img src="media/Send_a_Request_to_AI_Prompt_Fuzzer.jpg" alt="Image showing how to send a Request to AI Prompt Fuzzer" /></a></kbd>
 
@@ -100,9 +101,9 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
 
 ### Running the Fuzzer
 #### Start Fuzzing:
-* Load the payloads using local payloads file.
+* Load the payloads using local payloads file or using the default payloads by clicking on Load Payloads then clicking on Cancel or by clicking on View Payloads (the tool will automatically prompt you to load the default payloads).
 * Make sure to adjust the value for the "Minimum count of the validate string for potential break" based on the response type. If the response includes the user's input, set the value to 2; otherwise, keep it as 1.
-* click the Send Payloads Button to initiate requests.
+* Click the Send Payloads Button to initiate requests.
 * The tool will send a separate request for each payload to the specified API endpoint sequentially and log the responses in the Log Table.
 #### Sorting and Filtering Results:
 * Click on any column header in the Log Table to sort the entries. This allows you to, for instance, sort by Potential Break to quickly identify potential issues.
@@ -112,20 +113,26 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
 #### Viewing Responses:
 * Click on any row in the Log Table to display the full response in the Request and Response Viewer panel. This feature helps you inspect the response in detail to understand the AI model’s behaviour for each payload.
 * It is possible to send a specific request to the Repeater or Intruder tool (for further analysis) by using the right click menu (e.g., right click -> Send to Repeater).
+#### Highlighting Colours:
+The extension automatically highlights responses that indicate potential break. Here are the explanations for the highlighting Colours:
+* Red: both Keywords search and Burp's AI agree that the response may indicate a potential break
+* Orange: Only Burp's AI believes that the response may indicate a potential break
+* Yellow: Only Keywords search believes that the response may indicate a potential break
 #### Identifying Potential Breaks
-The Potential Break column is an important feature for highlighting anomalous responses, such as errors, unexpected outputs, or other predefined conditions that might indicate a vulnerability or bug.
+The Potential Break column(s) is an important feature for highlighting anomalous responses, such as expected string/meaning, errors, unexpected outputs, or other predefined conditions that might indicate a vulnerability or bug.
 ##### Customizing Detection Criteria:
-* You can configure what qualifies as a "potential break" by adjusting the keywords (aka `<validate>` in the payloads XML file) in the payloads file, please check the Payloads and Formatting section for more information.
-* The tool highlights rows in yellow where a potential break is detected, making it easier to spot unusual behaviour.
-* In version 1.0.1, you may need to adjust the value of the "Minimum count of the validate string for potential break" based on the responses from the application. If the application includes the user's input in the response, we may need to set the value to 2.
+* You can configure what qualifies as a "potential break" by adjusting the keywords (aka `<keywords>`/`<validate>` in the payloads XML file) in the payloads file, please check the Payloads and Formatting section for more information.
+* The tool highlights rows in Red/Orange/Yellow where a potential break is detected, making it easier to spot unusual behaviour.
+* In version 1.0.1, you may need to adjust the value of the "Minimum occurrences of the Keywords string for potential break" based on the responses from the application. If the application includes the user's input in the response, we need to set the value to 2.
 #### Manual Analysis:
 * Review each highlighted response to evaluate potential risks or issues manually.
 * It is recommended to review all results (including those with False Potential Break) to understand the behaviour of the utilized AI Model.
 * Document findings and rerun tests with modified payloads if needed to further investigate anomalies.
 * It is recommended to send the payloads multiple times and review the results as the AI/LLM may change their behaviour by replicating the requests.
 
-Here is a tutorial video (click to watch in YouTube):
+Here are some tutorial videos (click to watch in YouTube):
 [![AI Prompt Fuzzer Tutorial](https://img.youtube.com/vi/_gzbgGL1XJs/maxresdefault.jpg)](https://www.youtube.com/watch?v=_gzbgGL1XJs)
+[![AI Prompt Fuzzer - AI Capabilities](https://www.youtube.com/watch?v=6MSgJhgZm2s)
 
 ## Payloads and Formatting
 The format for the payloads file is simple and straight forward, all we need is to make sure it looks like the following:
@@ -134,15 +141,16 @@ The format for the payloads file is simple and straight forward, all we need is 
 <payloads>
   <payload>
     <inject>payload 1 string - must ask the AI/LLM to respond with "specific text 1"</inject>
-    <validate>specific text 1</validate>
+    <keywords>specific text 1</keywords>
   </payload>
   <payload>
     <inject>payload 2 string - must ask the AI/LLM to respond with "specific text 2"</inject>
-    <validate>specific text 2</validate>
+    <keywords>specific text 2</keywords>
   </payload>
 </payloads>
 ```
 As mentioned in the "How it works" section, in order to identify Potential Breaks, we need to make sure that the payload asks the AI/LLM to include specific text in the response. 
+The <validate> tag has been renamed into <keywords> for better meaning starting from v2.0.0; however, the <validate> tag is still compatible.
 Finally, Save the file as an XML file and you will be ready to go :wink:.
 ### XML Special Characters
 If you need to use XML special characters within your payload, please remember to use the XML escaped characters version to avoid errors. Here are the five XML special characters and their encoded/escaped versions:
@@ -155,7 +163,7 @@ If you need to use XML special characters within your payload, please remember t
 ```
 
 ## Conclusion
-The AI Prompt Fuzzer extension for Burp Suite is a powerful tool for security researchers and QA testers working with AI APIs/Web Applications. By facilitating bulk testing with varied payloads, it enables systematic probing of AI models to reveal potential weaknesses or unexpected behaviour. Follow the instructions above to compile, install, and effectively use the extension for your testing needs.   
+The AI Prompt Fuzzer extension for Burp Suite is a powerful tool for security researchers and QA testers working with AI APIs/Web Applications. By facilitating bulk testing with varied payloads, it enables systematic probing of AI models to reveal potential weaknesses or unexpected behaviour. Follow the instructions above to compile, install, and effectively use the extension for your testing needs. Starting from v2.0.0, testers can utilize Burp's AI to help reviewing/verifying the responses for potential breaks.   
 The tool has proven effective against various applications, identifying different types of vulnerabilities based on tailored payloads. For example, in well-known challenges like Gandalf AI and Beat the Bot (by Immersive Labs), the extension successfully completed all levels within 10 minutes. Custom payloads were designed specifically for these “reveal the secret” scenarios, though they are not shared here to preserve the learning experience :innocent:.   
 Beyond challenges, the extension has also been tested on real-world applications, where it demonstrated significant value by automating analysis and discovering critical vulnerabilities. This tool’s comprehensive functionality provides unique insights, making it an essential asset for anyone committed to the security and robustness of AI-powered applications.
 
