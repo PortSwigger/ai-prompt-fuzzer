@@ -319,18 +319,27 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         // Add the handler
         enableAIVerification.addActionListener(e -> handleEnableAIVerificationToggle());
 
-        // Footer label panel
-        JPanel footerPanel = new JPanel(new BorderLayout());
-        JLabel footerLabel = new JLabel("Developed by Idris", JLabel.LEFT);
-        footerPanel.add(footerLabel, BorderLayout.EAST); // Align the label to the right
+        // Author label panel
+        JPanel authorPanel = new JPanel(new BorderLayout());
+        JLabel authorLabel = new JLabel("Developed by Idris", JLabel.LEFT);
+        authorPanel.add(authorLabel, BorderLayout.EAST); // Align the label to the right
 
-        // South panel combining button panel and footer label
+        // Action panel combining button panel and footer label
+        JPanel actionPanel = new JPanel(new BorderLayout());
+        actionPanel.add(buttonPanel, BorderLayout.WEST);
+        actionPanel.add(authorPanel, BorderLayout.EAST);
+        actionPanel.add(settings,BorderLayout.SOUTH);
+
+        // Banner panel
+        JPanel bannerPanel = new JPanel(new BorderLayout());
+        RotatingHintBanner.integrateWithUI(bannerPanel);
+
+        // South panel combining action panel and banner panel
         JPanel southPanel = new JPanel(new BorderLayout());
-        southPanel.add(buttonPanel, BorderLayout.WEST);
-        southPanel.add(footerPanel, BorderLayout.EAST);
-        southPanel.add(settings,BorderLayout.SOUTH);
+        southPanel.add(actionPanel, BorderLayout.NORTH);
+        southPanel.add(bannerPanel, BorderLayout.SOUTH);
 
-        mainPanel.add(southPanel, BorderLayout.SOUTH); // Add southPanel to the main panel
+        mainPanel.add(southPanel, BorderLayout.SOUTH); // Add actionPanel to the main panel
 
         // Add right-click menu to the request/response viewer and log table
         addRightClickMenus();
