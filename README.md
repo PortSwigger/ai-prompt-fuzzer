@@ -133,7 +133,6 @@ The Potential Break column(s) is an important feature for highlighting anomalous
 Here are some tutorial videos (click to watch in YouTube):
 [![AI Prompt Fuzzer Tutorial](https://img.youtube.com/vi/_gzbgGL1XJs/maxresdefault.jpg)](https://www.youtube.com/watch?v=_gzbgGL1XJs)
 [![AI Prompt Fuzzer - AI Capabilities](https://img.youtube.com/vi/6MSgJhgZm2s/maxresdefault.jpg)](https://www.youtube.com/watch?v=6MSgJhgZm2s)
-<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/6MSgJhgZm2s?si=2RUBuP5foDGu1f7J" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
 
 ## Payloads and Formatting
 The format for the payloads file is simple and straight forward, all we need is to make sure it looks like the following:
