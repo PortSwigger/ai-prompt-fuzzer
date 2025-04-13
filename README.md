@@ -115,9 +115,9 @@ After installing the extension, you’ll see a tab named AI Prompt Fuzzer in Bur
 * It is possible to send a specific request to the Repeater or Intruder tool (for further analysis) by using the right click menu (e.g., right click -> Send to Repeater).
 #### Highlighting Colours:
 The extension automatically highlights responses that indicate potential break. Here are the explanations for the highlighting Colours:
-* Red: both Keywords search and Burp's AI agree that the response may indicate a potential break
-* Orange: Only Burp's AI believes that the response may indicate a potential break
-* Yellow: Only Keywords search believes that the response may indicate a potential break
+* $${\color{red}Red}$$: both Keywords search and Burp's AI agree that the response may indicate a potential break
+* $${\color{orange}Orange}$$: Only Burp's AI believes that the response may indicate a potential break
+* $${\color{yellow}Yellow}$$: Only Keywords search believes that the response may indicate a potential break
 #### Identifying Potential Breaks
 The Potential Break column(s) is an important feature for highlighting anomalous responses, such as expected string/meaning, errors, unexpected outputs, or other predefined conditions that might indicate a vulnerability or bug.
 ##### Customizing Detection Criteria:
