@@ -25,7 +25,6 @@ public class RotatingHintBanner extends JPanel {
 
     public RotatingHintBanner() {
         setLayout(new GridBagLayout()); // Center the label
-        //setPreferredSize(new Dimension(600, 30));
         setOpaque(true);
 
         // Use the current Look and Feel colors (good for Burp Suite themes)
@@ -36,8 +35,6 @@ public class RotatingHintBanner extends JPanel {
 
         // Create label with initial hint
         hintLabel = new JLabel(messages.get(messageIndex));
-        hintLabel.setFont(new Font("SansSerif", Font.PLAIN, 10));
-        hintLabel.setForeground(foreground != null ? foreground : Color.BLACK);
         add(hintLabel);
 
         // Set up a timer to rotate messages every 10 seconds
@@ -50,7 +47,7 @@ public class RotatingHintBanner extends JPanel {
         // Add a border around the banner
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(UIManager.getColor("Separator.foreground"), 1),
-                BorderFactory.createEmptyBorder(5, 10, 5, 10)
+                BorderFactory.createEmptyBorder()
         ));
     }
 
