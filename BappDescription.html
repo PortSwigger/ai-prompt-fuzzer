@@ -1,5 +1,5 @@
 <p>
-AI Prompt Fuzzer is a Burp Suite extension designed to help security professionals test AI-based applications for prompt injection vulnerabilities. With the rapid rise of large language models (LLMs) in sensitive contexts such as customer support, content generation, and automated decision-making, traditional tools often fall short in detecting LLM-specific security issues. This extension fills that gap by automating prompt fuzzing against AI APIs using customizable payloads, helping identify abnormal or unsafe model behavior.
+AI Prompt Fuzzer is a Burp Suite extension designed to help security professionals test AI-based applications for prompt injection vulnerabilities. With the rapid rise of large language models (LLMs) in sensitive contexts such as customer support, content generation, and automated decision-making, traditional tools often fall short in detecting LLM-specific security issues. This extension fills that gap by automating prompt fuzzing against AI APIs using customizable payloads, helping identify abnormal or unsafe model behavior. Starting from version v2.0.0, Burp's AI can be utilized to review/verify responses from the target applications.
 </p>
 
 <p>
@@ -7,11 +7,14 @@ The tool sends predefined prompts to the target API and flags responses that con
 </p>
 
 <h2>Features</h2>
+
 <ul>
   <li>Automated fuzzing of LLM prompts using payloads defined in XML format.</li>
-  <li>Customizable validation strings to identify potential breaks in AI behavior.</li>
+  <li>Customizable keywords strings to identify potential breaks in AI behavior.</li>
+  <li>Utilize Burp's AI for reviewing/verifying responses for potential breaks.</li>
   <li>Request editor with placeholder insertion for dynamic payload injection.</li>
   <li>Log table showing each request's time, method, URL, status, length, and break status.</li>
+  <li>Auto highlighted responses with different colours for potential breaks.</li>
   <li>Detailed request and response viewer for each fuzzed interaction.</li>
   <li>Built-in payload viewer and editor with support for loading default payloads.</li>
   <li>Filters and sorting by status, break state, and response size for easy analysis.</li>
@@ -21,13 +24,14 @@ The tool sends predefined prompts to the target API and flags responses that con
 </ul>
 
 <h2>Usage</h2>
+
 <ol>
   <li>Send a target request to the extension using the right-click menu -&gt; Extensions -&gt; AI Prompt Fuzzer -&gt; Send Request.</li>
   <li>Insert a placeholder (e.g., <code class="InlineCode">[PLACEHOLDER]</code>) in the desired location of the request where payloads will be injected.</li>
   <li>Load payloads from a local XML file or rely on the built-in default payloads.</li>
   <li>Click <strong>Send Payloads</strong> to begin fuzzing. Each payload replaces the placeholder and is sent as an individual request.</li>
-  <li>Use the log table to view and sort the results. Highlighted rows indicate a potential break based on the validate string found in the response.</li>
-  <li>Adjust detection sensitivity using the "Minimum count of the validate string for potential break" option if needed.</li>
+  <li>Use the log table to view and sort the results. Highlighted rows indicate a potential break based on the keywords/validate string found in the response or based on Burp's AI verification.</li>
+  <li>Adjust detection sensitivity using the "Minimum occurrences of the keywords string for potential break" option if needed.</li>
   <li>Send any logged request to Repeater or Intruder for further manual analysis.</li>
   <li>Customize or review payloads using the <strong>View Payloads</strong> feature. Edits are made directly in the table view.</li>
 </ol>
@@ -40,12 +44,13 @@ Payloads should be formatted as follows:
 &lt;payloads&gt;
   &lt;payload&gt;
     &lt;inject&gt;payload string - must ask the AI/LLM to respond with "specific text"&lt;/inject&gt;
-    &lt;validate&gt;specific text&lt;/validate&gt;
+    &lt;keywords&gt;specific text&lt;/keywords&gt;
   &lt;/payload&gt;
 &lt;/payloads&gt;
 </code></pre>
 
 <p>
+Note: in versions &gt;= v2.0.0, &lt;validate&gt; tag has been renamed into &lt;keywords&gt; - &lt;validate&gt; tag is still supported.<br>
 Ensure any XML special characters in payloads are escaped properly (e.g., ", ', &lt;, &gt;, &amp;).
 </p>
 
