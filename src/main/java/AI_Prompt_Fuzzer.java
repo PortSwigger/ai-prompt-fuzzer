@@ -271,7 +271,6 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         // JPanel for the payload settings
         JPanel settings = new JPanel();
         settings.setLayout(new FlowLayout(FlowLayout.LEFT));
-        settings.setLayout(new FlowLayout(FlowLayout.LEFT));
 
         // Create label and text box for "Minimum 'keywords' count for potential break"
         JLabel minKeywordsLabel = new JLabel("Minimum occurrences of the Keywords for potential break");
