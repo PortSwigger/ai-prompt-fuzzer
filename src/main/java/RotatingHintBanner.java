@@ -35,6 +35,7 @@ public class RotatingHintBanner extends JPanel {
 
         // Create label with initial hint
         hintLabel = new JLabel(messages.get(messageIndex));
+        //hintLabel.setForeground(new Color(7, 106, 7));
         add(hintLabel);
 
         // Set up a timer to rotate messages every 10 seconds
