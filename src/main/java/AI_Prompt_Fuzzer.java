@@ -237,9 +237,13 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         buttonPanel = new JPanel();
         buttonPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        JButton loadPayloadButton = new JButton("Load Payloads");
-        loadPayloadButton.addActionListener(e -> loadPayloads("Custom"));
-        buttonPanel.add(loadPayloadButton);
+        JButton defaultPayloadsButton = new JButton("Default Payloads");
+        defaultPayloadsButton.addActionListener(e -> loadPayloads("Default"));
+        buttonPanel.add(defaultPayloadsButton);
+
+        JButton customPayloadsButton = new JButton("Custom Payloads");
+        customPayloadsButton.addActionListener(e -> loadPayloads("Custom"));
+        buttonPanel.add(customPayloadsButton);
 
         // Adds sendRequests button as disabled
         JButton sendRequestsButton = new JButton("Send Payloads");
