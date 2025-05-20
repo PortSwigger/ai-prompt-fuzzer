@@ -2,8 +2,8 @@ Uuid: d3d1f3c9427e453193eb5deb3b6c115a
 ExtensionType: 1
 Name: AI Prompt Fuzzer
 RepoName: ai-prompt-fuzzer
-ScreenVersion: 2.0.0
-SerialVersion: 6
+ScreenVersion: 2.0.1
+SerialVersion: 7
 MinPlatformVersion: 19
 ProOnly: True
 Author: Mohamed Idris
