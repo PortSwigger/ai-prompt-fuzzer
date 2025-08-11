@@ -78,11 +78,9 @@ public class aIEnabled implements aiInterface {
         try {
             // Execute the prompt with the full context
             PromptResponse response = api.ai().prompt().execute(context.toArray(new Message[context.size()]));
-            /**
-            for (Message msg :context.toArray(new Message[context.size()])) {
-                api.logging().logToOutput("[i]: Message: \n" + msg.toString());
-            }
-             **/
+
+            //api.logging().logToOutput("[i]: Messages:");
+            //context.forEach(m -> api.logging().logToOutput(m.toString()));
 
             // Store AI response as an assistant message
             result = response.content();
