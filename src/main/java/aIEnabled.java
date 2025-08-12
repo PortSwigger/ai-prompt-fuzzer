@@ -10,16 +10,11 @@ import java.util.Random;
 
 public class aIEnabled implements aiInterface {
     MontoyaApi api = AI_Prompt_Fuzzer.getApi();
-    private final List<Message> context = new ArrayList<>();
+    private List<Message> context = new ArrayList<>();
 
     @Override
     public boolean isEnabled() {
         return api.ai().isEnabled();
-    }
-
-    @Override
-    public Prompt prompt() {
-        return api.ai().prompt();
     }
 
     public String getSingle_AI_Response(String systemPrompt, String userPrompt, boolean fakeResponse) {
@@ -63,6 +58,11 @@ public class aIEnabled implements aiInterface {
         if (context.isEmpty()) {
             context.add(Message.systemMessage(systemPrompt));
         }
+    }
+
+    // Reset the conversation
+    public void resetConversationContext(){
+        context = new ArrayList<>();
     }
 
     // Adds a new user query and sends the updated context

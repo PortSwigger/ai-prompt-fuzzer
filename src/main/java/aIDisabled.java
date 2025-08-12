@@ -8,11 +8,6 @@ public class aIDisabled implements aiInterface {
         return false;
     }
 
-    @Override
-    public Prompt prompt() {
-        return null;
-    }
-
     public String getSingle_AI_Response(String systemPrompt, String userPrompt, boolean fakeResponse) {
         return "";
     }
@@ -21,5 +16,7 @@ public class aIDisabled implements aiInterface {
     public String addUserQueryToConversation(String systemPrompt, String userPrompt) {
         return "";
     }
+
+    public void resetConversationContext(){}
 }
 
