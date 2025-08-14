@@ -62,7 +62,7 @@ public class aIEnabled implements aiInterface {
 
     // Reset the conversation
     public void resetConversationContext(){
-        context = new ArrayList<>();
+        context.clear();
     }
 
     // Adds a new user query and sends the updated context
