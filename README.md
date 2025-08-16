@@ -145,7 +145,7 @@ The Potential Break column(s) is an important feature for highlighting anomalous
 [![AI Prompt Fuzzer - AI vs AI Mode](https://img.youtube.com/vi/4IzjIjMWNWk/maxresdefault.jpg)](https://www.youtube.com/watch?v=4IzjIjMWNWk)
 ### AI Verification Demo:
 [![AI Prompt Fuzzer - AI Capabilities](https://img.youtube.com/vi/6MSgJhgZm2s/maxresdefault.jpg)](https://www.youtube.com/watch?v=6MSgJhgZm2s)
-### Old Demo:
+### Manual Testing Demo:
 [![AI Prompt Fuzzer Tutorial](https://img.youtube.com/vi/_gzbgGL1XJs/maxresdefault.jpg)](https://www.youtube.com/watch?v=_gzbgGL1XJs)
 
 ## Payloads and Formatting
