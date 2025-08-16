@@ -1,16 +1,20 @@
 <p>
-AI Prompt Fuzzer is a Burp Suite extension designed to help security professionals test AI-based applications for prompt injection vulnerabilities. With the rapid rise of large language models (LLMs) in sensitive contexts such as customer support, content generation, and automated decision-making, traditional tools often fall short in detecting LLM-specific security issues. This extension fills that gap by automating prompt fuzzing against AI APIs using customizable payloads, helping identify abnormal or unsafe model behavior. Starting from version v2.0.0, Burp's AI can be utilized to review/verify responses from the target applications.
+AI Prompt Fuzzer is a Burp Suite extension designed to help security professionals test AI-based applications for prompt injection vulnerabilities. With the rapid rise of large language models (LLMs) in sensitive contexts such as customer support, content generation, and automated decision-making, traditional tools often fall short in detecting LLM-specific security issues. 
+This extension fills that gap by automating prompt fuzzing against AI APIs using customizable payloads, helping identify abnormal or unsafe model behavior. Starting from version v2.0.0, Burp's AI can be utilized to review/verify responses from the target applications.
+In version 3.0.0, AI vs AI mode has been introduced, where users can utilize Burp AI to automate the entire attack (generate payloads, analyze and evalute the response, and decide the next action). This mode consumes more Burp AI credits to perform the entire attack.
 </p>
 
 <p>
 The tool sends predefined prompts to the target API and flags responses that contain specified validation strings, indicating a potential vulnerability or misbehavior. It handles challenges unique to LLMs, such as non-deterministic responses, by recommending strategies like asking the model to echo specific phrases when accepting a prompt.
+In AI vs AI mode, the tool utilizes Burp AI model to to generate, analyze, and evalute the response.  
 </p>
 
 <h2>Features</h2>
 <ul>
   <li>Automated fuzzing of LLM prompts using payloads defined in XML format.</li>
+  <li>Completely automated Prompt Injection attacks using Burp AI model.</li>
   <li>Customizable keywords strings to identify potential breaks in AI behavior.</li>
-  <li>Utilize Burp's AI for reviewing/verifying responses for potential breaks (versions &gt;= v2.0.0).</li>
+  <li>Utilize Burp's AI for automating/reviewing/verifying responses for potential breaks (versions &gt;= v2.0.0).</li>
   <li>Request editor with placeholder insertion for dynamic payload injection.</li>
   <li>Log table showing each request's time, method, URL, status, length, and break status.</li>
   <li>Auto highlighted responses with different colours for potential breaks.</li>
@@ -26,8 +30,21 @@ The tool sends predefined prompts to the target API and flags responses that con
 <ol>
   <li>Send a target request to the extension using the right-click menu -&gt; Extensions -&gt; AI Prompt Fuzzer -&gt; Send Request.</li>
   <li>Insert a placeholder (e.g., <code class="InlineCode">[PLACEHOLDER]</code>) in the desired location of the request where payloads will be injected.</li>
-  <li>Load payloads from a local XML file or rely on the built-in default payloads.</li>
-  <li>Click <strong>Send Payloads</strong> to begin fuzzing. Each payload replaces the placeholder and is sent as an individual request.</li>
+  <li>Start fuzzing:
+	<ul>
+	<li>Manual Testing:
+		<ol>
+			<li>Load payloads from a local XML file or rely on the built-in default payloads.</li>
+			<li>Click <strong>Send Payloads</strong> to begin fuzzing. Each payload replaces the placeholder and is sent as an individual request.</li>
+		</ol>
+	</li>
+	<li>AI vs AI mode:
+		<ol>
+			<li>Click the AI vs AI button.</li>
+			<li>Follow the wizard and pick your choices.</li>
+		</ol>
+	</li>
+	</ul>
   <li>Use the log table to view and sort the results. Highlighted rows indicate a potential break based on the keywords/validate string found in the response or based on Burp's AI verification.</li>
   <li>Adjust detection sensitivity using the "Minimum occurrences of the keywords string for potential break" option if needed.</li>
   <li>Send any logged request to Repeater or Intruder for further manual analysis.</li>
