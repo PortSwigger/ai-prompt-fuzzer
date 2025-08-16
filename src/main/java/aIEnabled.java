@@ -69,6 +69,11 @@ public class aIEnabled implements aiInterface {
     public String addUserQueryToConversation(String systemPrompt, String userPrompt) {
         initializeConversationContext(systemPrompt);  // Ensure system message exists
         context.add(Message.userMessage(userPrompt));
+
+        // debug messages
+        //api.logging().logToOutput("List contents:");
+        //context.forEach(m -> api.logging().logToOutput(m.toString()));
+
         return sendConversationPrompt();
     }
 
