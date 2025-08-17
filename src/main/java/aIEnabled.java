@@ -70,8 +70,8 @@ public class aIEnabled implements aiInterface {
         initializeConversationContext(systemPrompt);  // Ensure system message exists
         context.add(Message.userMessage(userPrompt));
 
-        // debug messages
-        //api.logging().logToOutput("List contents:");
+        //debug messages
+        //api.logging().logToOutput("[i]: Sent Context:");
         //context.forEach(m -> api.logging().logToOutput(m.toString()));
 
         return sendConversationPrompt();
@@ -81,11 +81,11 @@ public class aIEnabled implements aiInterface {
     private String sendConversationPrompt() {
         String result = "";
         try {
+            // reducing context size to below 31 messages to reduce AI credits usage
+            //trimContext();
+
             // Execute the prompt with the full context
             PromptResponse response = api.ai().prompt().execute(context.toArray(new Message[context.size()]));
-
-            //api.logging().logToOutput("[i]: Messages:");
-            //context.forEach(m -> api.logging().logToOutput(m.toString()));
 
             // Store AI response as an assistant message
             result = response.content();
@@ -96,6 +96,19 @@ public class aIEnabled implements aiInterface {
             api.logging().logToOutput("[e]: Error processing AI response: " + e.getMessage());
         }
         return result;
+    }
+
+    private void trimContext(){
+        int index = 1; // to avoid removing System message at index 0
+        while (context.size() - 31 > 0) {
+            api.logging().logToOutput("[i]: Context Size: " + context.size() + ", executing trimContext!");
+            // removing the earliest user and assistant messages
+            //api.logging().logToOutput("Removing: " + context.get(index));
+            context.remove(index);
+            //api.logging().logToOutput("Removing: " + context.get(index));
+            context.remove(index);
+            //api.logging().logToOutput("New item at index " + index + ": " + context.get(index));
+        }
     }
 }
 
