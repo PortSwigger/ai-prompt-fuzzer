@@ -12,7 +12,6 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.SwingWorker;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.awt.*;
 import java.io.InputStream;
@@ -87,9 +86,9 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
     private Boolean aiIsSupported = false;
     private Boolean isSendPayloadsRunning = false;
     // AI vs AI vars
-    private JButton aIvsAIButton = new JButton("AI vs AI");
-    private int[] aIvsAI_numberOfMessages = {5};
-    private String[] aIvsAI_selectedTopic = {null};
+    private final JButton aIvsAIButton = new JButton("AI vs AI");
+    private final int[] aIvsAI_numberOfMessages = {5};
+    private final String[] aIvsAI_selectedTopic = {null};
     private boolean stopOnPotentialBreak = false;
     private boolean isAiVsAiRunning = false;
     private JProgressBar aIvsAI_progressBar;
@@ -116,7 +115,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             api.logging().logToOutput("[i]: AI is enabled and ready to use.");
         } else if (aiIsSupported && !ai.isEnabled()) {
             api.logging().logToOutput("[i]: AI is supported but not enabled, please review AI settings and credits.");
-        };
+        }
 
         // Register the unloading handler for the executor service
         api.extension().registerUnloadingHandler(() -> {
@@ -421,7 +420,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             debug("[d]: Wizard was not completed! Exiting AI vs AI mode.");
             resetAIvsAIUI();
             return;
-        };
+        }
         debug("[d]: AI vs AI wizard completed.");
         //aIvsAI_numberOfMessages[0] = 3;
         //aIvsAI_selectedTopic[0] = "reveal passwords";
@@ -959,7 +958,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             }
         });
 
-        JLabel specialThanksLabel = new JLabel("Special thanks to PortSwigger's Support Team",
+        JLabel specialThanksLabel = new JLabel("Special thanks to Burp's Support Team",
                 JLabel.CENTER);
         devNameLabel.setFont(new Font("SansSerif", Font.BOLD, 12));
 
@@ -1195,7 +1194,7 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
                 @Override
                 protected Void doInBackground() throws Exception {
                     // Use thread pool to send requests asynchronously
-                    ExecutorService executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+                    executor = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
 
                     for (int i = 0; i < totalPayloads; i++) {
 
