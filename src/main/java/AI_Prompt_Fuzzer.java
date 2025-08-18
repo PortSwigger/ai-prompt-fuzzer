@@ -679,8 +679,6 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
             @Override
             protected String doInBackground() {
                 return ai.addUserQueryToConversation(systemPrompt, userPrompt);
-
-                //return ai.addUserQueryToConversationWindow(systemPrompt, userPrompt);
             }
 
             @Override

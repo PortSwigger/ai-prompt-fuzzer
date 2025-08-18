@@ -11,7 +11,6 @@ import java.util.Random;
 public class aIEnabled implements aiInterface {
     MontoyaApi api = AI_Prompt_Fuzzer.getApi();
     private List<Message> context = new ArrayList<>();
-    private String messagesWindow = "";
 
     @Override
     public boolean isEnabled() {
@@ -72,29 +71,8 @@ public class aIEnabled implements aiInterface {
         context.add(Message.userMessage(userPrompt));
 
         //debug messages
-        api.logging().logToOutput("[i]: Sent Context:");
-        context.forEach(m -> api.logging().logToOutput(m.toString()));
-
-        return sendConversationPrompt();
-    }
-
-    // Adds a new user query and sends the updated context
-    public String addUserQueryToConversationWindow(String systemPrompt, String userPrompt) {
-        initializeConversationContext(systemPrompt);  // Ensure system message exists
-
-        // create messagesWindow for at least 30 lines
-        // On the first message, or after we reach the Window size 30
-        if (messagesWindow.isBlank() || messagesWindow.split("\r\n|\r|\n").length > 30){
-            messagesWindow = userPrompt;
-            context.add(Message.userMessage(messagesWindow));
-        } else {
-            messagesWindow += "\nUSER:\n" + userPrompt;
-            context.add(context.size()-1,Message.userMessage(messagesWindow));
-        }
-
-        // debug messages
-        api.logging().logToOutput("[i]: Sent Context:");
-        context.forEach(m -> api.logging().logToOutput(m.toString()));
+        //api.logging().logToOutput("[i]: Sent Context:");
+        //context.forEach(m -> api.logging().logToOutput(m.toString()));
 
         return sendConversationPrompt();
     }
@@ -109,16 +87,10 @@ public class aIEnabled implements aiInterface {
             // Execute the prompt with the full context
             PromptResponse response = api.ai().prompt().execute(context.toArray(new Message[context.size()]));
 
-            // Store AI response as an assistant message
             result = response.content();
 
-            if (messagesWindow.isBlank()){
-                Message assistantMessage = Message.assistantMessage(response.content());
-                context.add(Message.assistantMessage(result));
-            } else {
-                messagesWindow += "\nASSISTANT:\n" + result;
-                context.add(context.size()-1,Message.userMessage(messagesWindow));
-            }
+            // Store AI response as an assistant message
+            context.add(Message.assistantMessage(result));
 
         } catch (Exception e) {
             api.logging().logToOutput("[e]: Error processing AI response: " + e.getMessage());
