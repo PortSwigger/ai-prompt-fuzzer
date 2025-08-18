@@ -17,6 +17,10 @@ public class aIDisabled implements aiInterface {
         return "";
     }
 
+    public String addUserQueryToConversationWindow(String systemPrompt, String userPrompt) {
+        return "";
+    }
+
     public void resetConversationContext(){}
 }
 
