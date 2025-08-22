@@ -81,8 +81,8 @@ public class aIEnabled implements aiInterface {
     private String sendConversationPrompt() {
         String result = "";
         try {
-            // reducing context size to below 31 messages to reduce AI credits usage
-            //trimContext();
+            // reducing context size to below 61 messages to reduce AI credits usage
+            trimContext();
 
             // Execute the prompt with the full context
             PromptResponse response = api.ai().prompt().execute(context.toArray(new Message[context.size()]));
@@ -100,7 +100,7 @@ public class aIEnabled implements aiInterface {
 
     private void trimContext(){
         int index = 1; // to avoid removing System message at index 0
-        while (context.size() - 31 > 0) {
+        while (context.size() - 61 > 0) {
             api.logging().logToOutput("[i]: Context Size: " + context.size() + ", executing trimContext!");
             // removing the earliest user and assistant messages
             //api.logging().logToOutput("Removing: " + context.get(index));
