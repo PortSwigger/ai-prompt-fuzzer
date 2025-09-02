@@ -30,7 +30,7 @@ public class MyContextMenuItemsProvider implements ContextMenuItemsProvider
                         ? event.messageEditorRequestResponse().get().requestResponse()
                         : event.selectedRequestResponses().get(0);
 
-                api.logging().logToOutput("Request is:\r\n" + requestResponse.request().toString());
+                //api.logging().logToOutput("Request is:\r\n" + requestResponse.request().toString());
                 AI_Prompt_Fuzzer.setCurrentRequestResponse(requestResponse);
             });
 
