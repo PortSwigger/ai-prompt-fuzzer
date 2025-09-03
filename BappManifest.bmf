@@ -3,8 +3,8 @@ ExtensionType: 1
 Name: AI Prompt Fuzzer
 RepoName: ai-prompt-fuzzer
 ScreenVersion: 3.0.0
-SerialVersion: 8
-MinPlatformVersion: 19
+SerialVersion: 9
+MinPlatformVersion: 16
 ProOnly: True
 Author: Mohamed Idris
 ShortDescription: Fuzz generative AI/LLM prompts using a list of various payloads.
