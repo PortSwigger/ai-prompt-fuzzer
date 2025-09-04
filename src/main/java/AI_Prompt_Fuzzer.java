@@ -404,6 +404,13 @@ public class AI_Prompt_Fuzzer implements BurpExtension {
         // if SendRequests is running, abort
         debug("[d]: isSendPayloadsRunning: " + isSendPayloadsRunning);
 
+        if (!aiIsSupported || !ai.isEnabled()) {
+            debug("[d]: AI is not supported/enabled");
+            JOptionPane.showMessageDialog(null, "AI is not supported/enabled");
+            resetAIvsAIUI();
+            return;
+        }
+
         if (isSendPayloadsRunning) {
             debug("[d]: Send payloads is running. Please wait for it to finish before using AI vs AI.");
             JOptionPane.showMessageDialog(null, "Send payloads is running. Please wait for it to finish before using AI vs AI.");
