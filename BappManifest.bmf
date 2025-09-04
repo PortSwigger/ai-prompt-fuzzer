@@ -3,7 +3,7 @@ ExtensionType: 1
 Name: AI Prompt Fuzzer
 RepoName: ai-prompt-fuzzer
 ScreenVersion: 3.0.0
-SerialVersion: 10
+SerialVersion: 11
 MinPlatformVersion: 16
 ProOnly: True
 Author: Mohamed Idris
